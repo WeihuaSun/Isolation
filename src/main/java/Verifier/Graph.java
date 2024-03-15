@@ -1,26 +1,34 @@
 package Verifier;
 import benchmark.Utils;
 import org.jgrapht.graph.*;
+import org.jgrapht.traverse.DepthFirstIterator;
+
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 public class Graph  {
-    public DirectedMultigraph<Node,Edge> graph;
+
+
+    public DirectedMultigraph<Txn,DefaultEdge> under;
+    public DirectedMultigraph<Txn,DefaultEdge> over;
+
 
     public Graph(){
-        this.graph = new DirectedMultigraph<>(Edge.class);
+        this.under = new DirectedMultigraph<>(DefaultEdge.class);
+        this.over = new DirectedMultigraph<>(DefaultEdge.class);
     }
 
     public static class Edge extends DefaultEdge{
-
+        public int type;
+        public Edge(int type){
+            this.type = type;
+        }
     }
     /*
     * Transaction node.
     * */
-    public static class Node{
 
-    }
     public static class Begin extends TxnOp{
         public Begin(long opId,long txnId,long start, long end) {
             super(opId,txnId,start, end);
@@ -71,12 +79,14 @@ public class Graph  {
             return entry.array();
         }
     }
-    public static class Read extends TxnOp{
+    public static class Read extends TxnOp implements Comparable<Read>{
+        public Txn parent;
         public long key;
         public long val;
         public long readFromTxn;
         public long readFromWop;
         public String realVal;
+
 
         public Read(long opId,long txnId,long start, long end,String key,String val) {
             super(opId,txnId,start, end);
@@ -94,6 +104,14 @@ public class Graph  {
                 this.readFromTxn = valInfo.txnId;
             }
         }
+
+        public Read(long opId,long txnId,long start, long end,long key,long val,long readFromTxn,long readFromWop){
+            super(opId,txnId,start, end);
+            this.key = key;
+            this.val = val;
+            this.readFromTxn = readFromTxn;
+            this.readFromWop = readFromWop;
+        }
         public byte[] toByte(){
             int size = 1 + 8 * Long.BYTES;
             ByteBuffer entry;
@@ -110,15 +128,35 @@ public class Graph  {
             return entry.array();
         }
 
+        @Override
+        public int compareTo(Read o) {
+            return Long.compare(this.parent.iEnd,o.parent.iEnd);
+        }
     }
     public static class Write extends TxnOp{
+
+        public long replaceTime = Long.MAX_VALUE;
         public long key;
+        public Txn parent;
         public long val;
+        public long sStart;
+        public long sEnd;
         public Write(long opId,long txnId,long start, long end,String realKey,String realVal) {
             super(opId,txnId,start,end);
             this.key = Utils.hashString(realKey);
             this.val = Utils.hashString(realVal);
         }
+        public Write(long opId,long txnId,long start, long end,long key,Long val,long sStart,long sEnd){
+            super(opId,txnId,start,end);
+            this.key = key;
+            this.val = val;
+            this.sStart =sStart;
+            this.sEnd = sEnd;
+        }
+        public Write(long opId,long txnId){
+            super(opId,txnId,0,0);
+        }
+
         public byte[] toByte(){
             int size = 1 + 6 * Long.BYTES;
             ByteBuffer entry;
@@ -135,13 +173,17 @@ public class Graph  {
 
     }
     public static class Txn{
-        public final static int OnGoing = 1,Committed = 2,Aborted =3,DELETE_OP = -1,INIT_OP=-2,INIT_TXN=-3;
+        public final static int OnGoing = 1,Committed = 2,Aborted =3;
+        public final static long INIT_OP=-1,INIT_TXN=-2,DELETE_OP = -3;
         public long clientId;
         public int txnType;
         public long txnId;
-        public long start;
-        public long end;
         public int state = OnGoing;
+        public long sStart;
+        public long start;
+        public long sEnd;
+        public long iStart;
+        public long iEnd;
 
         public ArrayList<TxnOp> txnOps;
 
@@ -150,11 +192,23 @@ public class Graph  {
             this.txnId = txnId;
             this.clientId = clientId;
         }
-        public void setStart(long start){
-            this.start = start;
+        public void setStart(long sStart,long sEnd){
+            this.sStart = sStart;
+            this.sEnd = sEnd;
         }
-        public void setEnd(long end){
-            this.end = end;
+        public void setEnd(long iStart,long iEnd){
+            this.iStart = iStart;
+            this.iEnd = iEnd;
+        }
+
+
+        public void appendOp(Graph.Write op){
+            op.parent = this;
+            txnOps.add(op);
+        }
+        public void appendOp(Graph.Read op){
+            op.parent = this;
+            txnOps.add(op);
         }
         public void appendOp(TxnOp op){
             txnOps.add(op);

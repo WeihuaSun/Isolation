@@ -122,7 +122,7 @@ public class PostgreSQL implements KeyValueDB {
         public Graph.Txn begin(long txnId,int id){
             parent.increment();
             this.curTxn = new Graph.Txn(txnId,id);
-            this.curTxn.setStart(now());
+            this.curTxn.setStart(now(),now());
             return this.curTxn;
         }
         public boolean commit(){

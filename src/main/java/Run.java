@@ -1,3 +1,4 @@
+import Verifier.OpLevelVerifier;
 import benchmark.History;
 
 import benchmark.twitter.TwitterRun;
@@ -20,7 +21,6 @@ public class Run {
         log.info("main, {}={}", pName, prop);
         return (prop);
     }
-
     public Run(){
         Properties ini = new Properties();
         try {
@@ -37,7 +37,8 @@ public class Run {
             case "tpcc":
                 break;
             case "twitter":
-                TwitterRun.run(ini);
+                //TwitterRun.run(ini);
+                OpLevelVerifier verifier = new OpLevelVerifier();
                 break;
             case "blindw":
                 //todo:blindw get history

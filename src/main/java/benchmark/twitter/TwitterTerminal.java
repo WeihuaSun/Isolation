@@ -31,7 +31,7 @@ public class TwitterTerminal extends Terminal<TwitterTData> {
         if (tdata.trans_type == TwitterTData.TT_NONE)
             return 0.0;
         else
-            return  2;
+            return 2;//time
     }
     private double randomDouble() {
         return this.random.nextDouble();

@@ -13,7 +13,7 @@ public class TwitterConfig {
     public static double showTweetsWeight=20;
     public static double timelineWeight=10;
 
-    public static String outputPath = System.getProperty("user.dir")+"/output/ctwitter/" ;
+    public static String outputPath = System.getProperty("user.dir")+"/output/ctwitter/";
 
 
     public static class TUser{

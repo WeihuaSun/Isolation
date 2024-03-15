@@ -47,10 +47,12 @@ public class TwitterRun extends RunBench<TwitterTData> {
             }
         }
         if(reBuild){
+            System.out.println("rebuild");
             rebuildDatabase();
         }
 
         now = System.currentTimeMillis();
+        System.out.println("start benchmark");
         doBenchmark();
     }
 
