@@ -27,6 +27,8 @@ public class TxnLevelVerifier {
 
     public TreeSet<WriteLT> toObsoleteWrite;//将要淘汰的
 
+    public TreeSet<TransactionLT> aliveTxns;
+
     public String logDir;
 
     public long checkStart;
@@ -173,6 +175,20 @@ public class TxnLevelVerifier {
             }
         }
         terminate();
+    }
+
+    /**
+     *将合适的TO类型的边添加到DG中
+     * @param t:当前处理的事务
+     */
+    public void timeOrder(TransactionLT t){
+        //aliveTxns按照结束时间排序事务，结束时间最早的排在最前面
+        TransactionLT prev = aliveTxns.first();
+        while (!aliveTxns.isEmpty()&&prev.end<=checkStart){
+            aliveTxns.removeFirst();
+            addEdge(under,prev,t,"TO");
+            addEdge(over,prev,t,"TO");
+        }
     }
 
     public static class Element implements Comparable<OpLevelVerifier.Element> {
