@@ -56,6 +56,26 @@ public class GraphReduce {
         this.underVertexId = 0;
     }
 
+    private SupportGraph genGraph(){
+        if(reOverVertexMap.size()==1){
+            return null;
+        }else{
+            SupportGraph sGraph = new SupportGraph();
+            Iterator<Map.Entry<VertexId, Set<VertexId>>> iterator = reOverVertexMap.entrySet().iterator();
+            while (iterator.hasNext()){
+                sGraph.addVertex(iterator.next().getKey());
+            }
+            for(DependencyEdge edge:overEdges){
+                long head = g.getEdgeTarget(edge).txnId;
+                long end = g.getEdgeSource(edge).txnId;
+                if(overVertexMap.get(head)!=overVertexMap.get(end)){
+                    sGraph.addEdge(overVertexMap.get(end),overVertexMap.get(head));
+                }
+            }
+            return sGraph;
+        }
+    }
+
 
 
 
@@ -72,6 +92,7 @@ public class GraphReduce {
             if (outEdge.getState() == DependencyEdge.State.Undetermined||outEdge.getState()== DependencyEdge.State.Derived){
                 if(cOverVisited.contains(head.txnId)){
                     overReach =1;
+                    overEdges.add(outEdge);
                     VertexId overHeadId = overVertexMap.get(head.txnId);
                     if (overHeadId.id != overSourceId.id) {//二者连通但不属于同一个集合,合并Source到Head(可能选一个小的集合更快)
                         for (VertexId l : reOverVertexMap.get(overHeadId)) {
@@ -88,6 +109,7 @@ public class GraphReduce {
                 }else{
                     int reachable = dfs(head,overSourceId);
                     if(reachable==1){
+                        overEdges.add(outEdge);
                         overReach = 1;
                     }else if(reachable == 0){
                         unknown = true;
