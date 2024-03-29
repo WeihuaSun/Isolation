@@ -3,16 +3,22 @@ package Graph;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Set;
+import Graph.TransactionLT.*;
 
 public class WriteLT extends OperatorLT {
     public long key;
+    public Set<TransactionLT> neighbors;
     public long replaceTime = Long.MAX_VALUE;
+    public long wReplaceTime = Long.MAX_VALUE;
+
     public ArrayList<WritePair> wwPairs = new ArrayList<>();
 
     public WriteLT(long opId, TransactionLT parent, long key) {
         super(opId, parent);
         this.key = key;
     }
+
     public void setReplaceTime(long replaceTime){
         this.replaceTime = replaceTime;
     }

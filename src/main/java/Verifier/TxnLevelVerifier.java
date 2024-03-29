@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 package Verifier;
 
 import java.io.*;
@@ -510,3 +511,5 @@ public class TxnLevelVerifier {
     }
 
 }
+=======
+>>>>>>> refs/remotes/origin/main

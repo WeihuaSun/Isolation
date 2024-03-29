@@ -55,22 +55,23 @@ import org.jgrapht.util.*;
  * This class makes no claims to thread safety, and concurrent usage from multiple threads will
  * produce undefined results.
  *
- * @param <V> the graph vertex type
- * @param <E> the graph edge type
+ * @param <TransactionLT> the graph vertex type
+ * @param <DependencyEdge> the graph edge type
  *
  * @author Peter Giles
  */
-public class DependencyGraph<V, E>
-    extends AbstractBaseGraph<V, E>
-    implements Iterable<V>
+public class DependencyGraph
+        extends AbstractBaseGraph<TransactionLT, DependencyEdge>
+    implements Iterable<TransactionLT>
 {
     @Serial
     private static final long serialVersionUID = 4522128427004938150L;
 
-    private final Comparator<V> topoComparator;
-    private final TopoOrderMap<V> topoOrderMap;
+    private final Comparator<TransactionLT> topoComparator;
+    private final TopoOrderMap<TransactionLT> topoOrderMap;
     private int maxTopoIndex = 0;
     private int minTopoIndex = 0;
+    public HashMap<Long[],DependencyEdge> edgeDict;
 
     // this update count is used to keep internal topological iterators honest
     private transient long topoModCount = 0;
@@ -85,9 +86,9 @@ public class DependencyGraph<V, E>
      *
      * @param edgeClass the edge class
      */
-    public DependencyGraph(Class<? extends E> edgeClass)
+    public DependencyGraph(Class<? extends DependencyEdge> edgeClass)
     {
-        this(null, SupplierUtil.createSupplier(edgeClass), false, false);
+        this(null, SupplierUtil.createSupplier(edgeClass), true, false);
     }
 
     /**
@@ -98,7 +99,7 @@ public class DependencyGraph<V, E>
      * @param weighted if true the graph will be weighted, otherwise not
      */
     public DependencyGraph(
-        Supplier<V> vertexSupplier, Supplier<E> edgeSupplier, boolean weighted)
+        Supplier<TransactionLT> vertexSupplier, Supplier<DependencyEdge> edgeSupplier, boolean weighted)
     {
         this(
             vertexSupplier, edgeSupplier, new VisitedBitSetImpl(), new TopoVertexBiMap<>(),
@@ -114,7 +115,7 @@ public class DependencyGraph<V, E>
      * @param allowMultipleEdges if true the graph will allow multiple edges, otherwise not
      */
     public DependencyGraph(
-        Supplier<V> vertexSupplier, Supplier<E> edgeSupplier, boolean weighted,
+        Supplier<TransactionLT> vertexSupplier, Supplier<DependencyEdge> edgeSupplier, boolean weighted,
         boolean allowMultipleEdges)
     {
         this(
@@ -132,8 +133,8 @@ public class DependencyGraph<V, E>
      * @param graphSpecificsStrategy strategy for constructing low-level graph specifics
      */
     public DependencyGraph(
-        Supplier<V> vertexSupplier, Supplier<E> edgeSupplier, boolean weighted,
-        boolean allowMultipleEdges, GraphSpecificsStrategy<V, E> graphSpecificsStrategy)
+        Supplier<TransactionLT> vertexSupplier, Supplier<DependencyEdge> edgeSupplier, boolean weighted,
+        boolean allowMultipleEdges, GraphSpecificsStrategy<TransactionLT, DependencyEdge> graphSpecificsStrategy)
     {
         this(
             vertexSupplier, edgeSupplier, new VisitedBitSetImpl(), new TopoVertexBiMap<>(),
@@ -152,8 +153,8 @@ public class DependencyGraph<V, E>
      * @param weighted if true the graph will be weighted, otherwise not
      */
     protected DependencyGraph(
-        Supplier<V> vertexSupplier, Supplier<E> edgeSupplier,
-        VisitedStrategyFactory visitedStrategyFactory, TopoOrderMap<V> topoOrderMap,
+        Supplier<TransactionLT> vertexSupplier, Supplier<DependencyEdge> edgeSupplier,
+        VisitedStrategyFactory visitedStrategyFactory, TopoOrderMap<TransactionLT> topoOrderMap,
         boolean weighted)
     {
         this(vertexSupplier, edgeSupplier, visitedStrategyFactory, topoOrderMap, weighted, false);
@@ -172,8 +173,8 @@ public class DependencyGraph<V, E>
      * @param allowMultipleEdges if true the graph will allow multiple edges, otherwise not
      */
     protected DependencyGraph(
-        Supplier<V> vertexSupplier, Supplier<E> edgeSupplier,
-        VisitedStrategyFactory visitedStrategyFactory, TopoOrderMap<V> topoOrderMap,
+        Supplier<TransactionLT> vertexSupplier, Supplier<DependencyEdge> edgeSupplier,
+        VisitedStrategyFactory visitedStrategyFactory, TopoOrderMap<TransactionLT> topoOrderMap,
         boolean weighted, boolean allowMultipleEdges)
     {
         this(
@@ -195,10 +196,10 @@ public class DependencyGraph<V, E>
      * @param graphSpecificsStrategy strategy for constructing low-level graph specifics
      */
     protected DependencyGraph(
-        Supplier<V> vertexSupplier, Supplier<E> edgeSupplier,
-        VisitedStrategyFactory visitedStrategyFactory, TopoOrderMap<V> topoOrderMap,
+        Supplier<TransactionLT> vertexSupplier, Supplier<DependencyEdge> edgeSupplier,
+        VisitedStrategyFactory visitedStrategyFactory, TopoOrderMap<TransactionLT> topoOrderMap,
         boolean weighted, boolean allowMultipleEdges,
-        GraphSpecificsStrategy<V, E> graphSpecificsStrategy)
+        GraphSpecificsStrategy<TransactionLT, DependencyEdge> graphSpecificsStrategy)
     {
         super(
             vertexSupplier, edgeSupplier,
@@ -217,34 +218,34 @@ public class DependencyGraph<V, E>
      * Create a builder for this kind of graph.
      *
      * @param edgeClass class on which to base factory for edges
-     * @param <V> the graph vertex type
-     * @param <E> the graph edge type
+     * @param <TransactionLT> the graph vertex type
+     * @param <DependencyEdge> the graph edge type
      * @return a builder for this kind of graph
      */
-    public static <V, E> GraphBuilder<V, E, ? extends DependencyGraph<V, E>> createBuilder(
-        Class<? extends E> edgeClass)
+    public static GraphBuilder<TransactionLT, DependencyEdge, ? extends DependencyGraph> createBuilder(
+        Class<? extends DependencyEdge> edgeClass)
     {
-        return new GraphBuilder<>(new DependencyGraph<>(edgeClass));
+        return new GraphBuilder(new DependencyGraph(edgeClass));
     }
 
     /**
      * Create a builder for this kind of graph.
      *
      * @param edgeSupplier edge supplier for the edges
-     * @param <V> the graph vertex type
-     * @param <E> the graph edge type
+     * @param <TransactionLT> the graph vertex type
+     * @param <DependencyEdge> the graph edge type
      * @return a builder for this kind of graph
      */
-    public static <V, E> GraphBuilder<V, E, ? extends DependencyGraph<V, E>> createBuilder(
-        Supplier<E> edgeSupplier)
+    public static  GraphBuilder<TransactionLT, DependencyEdge, ? extends DependencyGraph> createBuilder(
+        Supplier<DependencyEdge> edgeSupplier)
     {
-        return new GraphBuilder<>(new DependencyGraph<>(null, edgeSupplier, false));
+        return new GraphBuilder(new DependencyGraph(null, edgeSupplier, false));
     }
 
     @Override
-    public V addVertex()
+    public TransactionLT addVertex()
     {
-        V v = super.addVertex();
+        TransactionLT v = super.addVertex();
 
         if (v != null) {
             // add to the topological map
@@ -257,7 +258,7 @@ public class DependencyGraph<V, E>
     }
 
     @Override
-    public boolean addVertex(V v)
+    public boolean addVertex(TransactionLT v)
     {
         boolean added = super.addVertex(v);
 
@@ -272,7 +273,7 @@ public class DependencyGraph<V, E>
     }
 
     @Override
-    public boolean removeVertex(V v)
+    public boolean removeVertex(TransactionLT v)
     {
         boolean removed = super.removeVertex(v);
 
@@ -315,7 +316,7 @@ public class DependencyGraph<V, E>
      * @throws GraphCycleProhibitedException if the vertex would induce a cycle in the graph
      */
     @Override
-    public E addEdge(V sourceVertex, V targetVertex)
+    public DependencyEdge addEdge(TransactionLT sourceVertex, TransactionLT targetVertex)
     {
         assertVertexExist(sourceVertex);
         assertVertexExist(targetVertex);
@@ -328,77 +329,79 @@ public class DependencyGraph<V, E>
         }
     }
 
-    public Set<E> checkEdge(V sourceVertex, V targetVertex){
+    /**
+     * 检查添加这条边会不会形成环路,如果形成环路，是否包含一条由确定的边组成的路径
+     * 如果不包含一条由确定边组成的路径，那么需要找到路径中的非确定边，也就是被推断出来的边
+     * @param sourceVertex
+     * @param targetVertex
+     * @return
+     */
+    public boolean checkEdge(TransactionLT sourceVertex, TransactionLT targetVertex,List<List<DependencyEdge>> derivedPaths){
         assertVertexExist(sourceVertex);
         assertVertexExist(targetVertex);
-
         Integer lb = topoOrderMap.getTopologicalIndex(targetVertex);
         Integer ub = topoOrderMap.getTopologicalIndex(sourceVertex);
-
         if (lb < ub) {
             // discovery
             Region affectedRegion = new Region(lb, ub);
             VisitedStrategy visited = visitedStrategyFactory.getVisitedStrategy(affectedRegion);
-
+            //List<List<DependencyEdge>> derivedPaths =new ArrayList<>();//存储所有导致环路的包含派生边的路径
             // throws CycleFoundException if there is a cycle
-            return dfsFCycle(targetVertex, visited, affectedRegion);
+            List<DependencyEdge> currentDerivedEdges = new ArrayList<>();
+            return dfsFCycle(targetVertex, visited, affectedRegion,currentDerivedEdges,derivedPaths);
         }
-        return null;
+        return true;
     }
 
 
 
-
-    private Set<E> dfsFCycle(V initialVertex, VisitedStrategy visited, Region affectedRegion)
+    private class DerivedPath{
+        private List<DependencyEdge> path;
+        private int numDrivedEdges;
+        public DerivedPath() {
+            path = new ArrayList<>();
+            numDrivedEdges = 0;
+        }
+        public DerivedPath(List<DependencyEdge> paths) {
+            path = paths;
+            numDrivedEdges = paths.size();
+        }
+    }
+    /**
+     *
+     * @param initialVertex 实际为target,
+     * @param visited
+     * @param affectedRegion
+     * @param derivedPaths
+     * @return 是否存在仅由确定的边组成的路径
+     */
+    private boolean dfsFCycle(TransactionLT initialVertex, VisitedStrategy visited, Region affectedRegion,List<DependencyEdge>currentDerivedEdges, List<List<DependencyEdge>> derivedPaths)
     {
-        Set<E> allEdges = new HashSet<>();
-        Stack<V> vertices = new Stack<>();
-        List<E> currentPath = new ArrayList<>();
-
-
-        vertices.push(initialVertex);
         int topoIndex = topoOrderMap.getTopologicalIndex(initialVertex);
         visited.setVisited(topoIndex);
-
-
-        while (!vertices.isEmpty()) {
-            V vertex = vertices.peek();
-
-            topoIndex = topoOrderMap.getTopologicalIndex(vertex);
-            if (topoIndex == affectedRegion.finish) {
-                allEdges.addAll(currentPath);
-                V parentVertex = vertices.pop();
-                visited.clearVisited(topoOrderMap.getTopologicalIndex(parentVertex));
-                if (!vertices.isEmpty()) {
-                    currentPath.remove(currentPath.size() - 1);
-                }
-                continue;
-
-            }
-
-
-            boolean allVisited = true;
-            for (E outEdge : outgoingEdgesOf(vertex)) {
-                V nextVertex = getEdgeTarget(outEdge);
-                Integer nextVertexTopoIndex = topoOrderMap.getTopologicalIndex(nextVertex);
-                if(!visited.getVisited(nextVertexTopoIndex)){
-                    vertices.push(nextVertex); // recurse
-                    visited.setVisited(nextVertexTopoIndex);
-                    currentPath.add(outEdge);
-                    allVisited = false;
-                    break;
-                }
-
-            if(allVisited){
-                V parentVertex = vertices.pop();
-                visited.clearVisited(topoOrderMap.getTopologicalIndex(parentVertex));
-                if (!vertices.isEmpty()) {
-                    currentPath.remove(currentPath.size() - 1);
-                }
-            }
+        if (topoIndex == affectedRegion.finish) {
+            if(currentDerivedEdges.isEmpty())
+                return true;
+            else {
+                derivedPaths.add(new ArrayList<>(currentDerivedEdges));
             }
         }
-        return allEdges;
+        else {
+            for (DependencyEdge outEdge : outgoingEdgesOf(initialVertex)) {
+                TransactionLT nextVertex = getEdgeTarget(outEdge);
+                topoIndex = topoOrderMap.getTopologicalIndex(nextVertex);
+                if (!visited.getVisited(topoIndex)&&affectedRegion.isIn(topoIndex)) {
+                    if(!outEdge.isDeterminate())
+                        currentDerivedEdges.addLast(outEdge);
+                    if(dfsFCycle(nextVertex,visited,affectedRegion,currentDerivedEdges,derivedPaths))
+                        return true;
+                    if(!outEdge.isDeterminate())
+                        currentDerivedEdges.removeLast();
+                }
+            }
+        }
+        visited.clearVisited(topoIndex);
+        return false;
     }
 
 
@@ -415,7 +418,7 @@ public class DependencyGraph<V, E>
      * @throws GraphCycleProhibitedException if the vertex would induce a cycle in the graph
      */
     @Override
-    public boolean addEdge(V sourceVertex, V targetVertex, E e)
+    public boolean addEdge(TransactionLT sourceVertex, TransactionLT targetVertex, DependencyEdge e)
     {
         if (e == null) {
             throw new NullPointerException();
@@ -434,17 +437,18 @@ public class DependencyGraph<V, E>
         }
     }
 
+
     /**
      * Get the ancestors of a vertex.
      *
      * @param vertex the vertex to get the ancestors of
      * @return {@link Set} of ancestors of a vertex
      */
-    public Set<V> getAncestors(V vertex)
+    public Set<TransactionLT> getAncestors(TransactionLT vertex)
     {
-        EdgeReversedGraph<V, E> reversedGraph = new EdgeReversedGraph<>(this);
-        Iterator<V> iterator = new DepthFirstIterator<>(reversedGraph, vertex);
-        Set<V> ancestors = new HashSet<>();
+        EdgeReversedGraph<TransactionLT, DependencyEdge> reversedGraph = new EdgeReversedGraph<>(this);
+        Iterator<TransactionLT> iterator = new DepthFirstIterator<>(reversedGraph, vertex);
+        Set<TransactionLT> ancestors = new HashSet<>();
 
         // Do not add start vertex to result.
         if (iterator.hasNext()) {
@@ -462,10 +466,10 @@ public class DependencyGraph<V, E>
      * @param vertex the vertex to get the descendants of
      * @return {@link Set} of descendants of a vertex
      */
-    public Set<V> getDescendants(V vertex)
+    public Set<TransactionLT> getDescendants(TransactionLT vertex)
     {
-        Iterator<V> iterator = new DepthFirstIterator<>(this, vertex);
-        Set<V> descendants = new HashSet<>();
+        Iterator<TransactionLT> iterator = new DepthFirstIterator<>(this, vertex);
+        Set<TransactionLT> descendants = new HashSet<>();
 
         // Do not add start vertex to result.
         if (iterator.hasNext()) {
@@ -483,7 +487,7 @@ public class DependencyGraph<V, E>
      * @return a topological order iterator
      */
     @Override
-    public Iterator<V> iterator()
+    public Iterator<TransactionLT> iterator()
     {
         return new TopoIterator();
     }
@@ -494,15 +498,15 @@ public class DependencyGraph<V, E>
      * @param sourceVertex the source vertex
      * @param targetVertex the target vertex
      */
-    private void updateDag(V sourceVertex, V targetVertex)
+    private void updateDag(TransactionLT sourceVertex, TransactionLT targetVertex)
         throws CycleFoundException
     {
         Integer lb = topoOrderMap.getTopologicalIndex(targetVertex);
         Integer ub = topoOrderMap.getTopologicalIndex(sourceVertex);
 
         if (lb < ub) {
-            Set<V> df = new HashSet<>();
-            Set<V> db = new HashSet<>();
+            Set<TransactionLT> df = new HashSet<>();
+            Set<TransactionLT> db = new HashSet<>();
 
             // discovery
             Region affectedRegion = new Region(lb, ub);
@@ -531,14 +535,14 @@ public class DependencyGraph<V, E>
      *
      * @throws CycleFoundException if a cycle is discovered
      */
-    private void dfsF(V initialVertex, Set<V> df, VisitedStrategy visited, Region affectedRegion)
+    private void dfsF(TransactionLT initialVertex, Set<TransactionLT> df, VisitedStrategy visited, Region affectedRegion)
         throws CycleFoundException
     {
-        Deque<V> vertices = new ArrayDeque<>();
+        Deque<TransactionLT> vertices = new ArrayDeque<>();
         vertices.push(initialVertex);
 
         while (!vertices.isEmpty()) {
-            V vertex = vertices.pop();
+            TransactionLT vertex = vertices.pop();
             int topoIndex = topoOrderMap.getTopologicalIndex(vertex);
 
             if (visited.getVisited(topoIndex)) {
@@ -550,14 +554,14 @@ public class DependencyGraph<V, E>
 
             df.add(vertex);
 
-            for (E outEdge : outgoingEdgesOf(vertex)) {
-                V nextVertex = getEdgeTarget(outEdge);
+            for (DependencyEdge outEdge : outgoingEdgesOf(vertex)) {
+                TransactionLT nextVertex = getEdgeTarget(outEdge);
                 Integer nextVertexTopoIndex = topoOrderMap.getTopologicalIndex(nextVertex);
 
                 if (nextVertexTopoIndex == affectedRegion.finish) {
                     // reset visited
                     try {
-                        for (V visitedVertex : df) {
+                        for (TransactionLT visitedVertex : df) {
                             visited.clearVisited(topoOrderMap.getTopologicalIndex(visitedVertex));
                         }
                     } catch (UnsupportedOperationException e) {
@@ -589,13 +593,13 @@ public class DependencyGraph<V, E>
      * @param db the set we are populating with back-connected vertices in the AR
      * @param visited
      */
-    private void dfsB(V initialVertex, Set<V> db, VisitedStrategy visited, Region affectedRegion)
+    private void dfsB(TransactionLT initialVertex, Set<TransactionLT> db, VisitedStrategy visited, Region affectedRegion)
     {
-        Deque<V> vertices = new ArrayDeque<>();
+        Deque<TransactionLT> vertices = new ArrayDeque<>();
         vertices.push(initialVertex);
 
         while (!vertices.isEmpty()) {
-            V vertex = vertices.pop();
+            TransactionLT vertex = vertices.pop();
             // Assumption: vertex is in the AR and so we will get a topoIndex from
             // the map
             int topoIndex = topoOrderMap.getTopologicalIndex(vertex);
@@ -608,8 +612,8 @@ public class DependencyGraph<V, E>
 
             db.add(vertex);
 
-            for (E inEdge : incomingEdgesOf(vertex)) {
-                V previousVertex = getEdgeSource(inEdge);
+            for (DependencyEdge inEdge : incomingEdgesOf(vertex)) {
+                TransactionLT previousVertex = getEdgeSource(inEdge);
                 Integer previousVertexTopoIndex = topoOrderMap.getTopologicalIndex(previousVertex);
 
                 /*
@@ -629,10 +633,10 @@ public class DependencyGraph<V, E>
     }
 
     @SuppressWarnings("unchecked")
-    private void reorder(Set<V> df, Set<V> db, VisitedStrategy visited)
+    private void reorder(Set<TransactionLT> df, Set<TransactionLT> db, VisitedStrategy visited)
     {
-        List<V> topoDf = new ArrayList<>(df);
-        List<V> topoDb = new ArrayList<>(db);
+        List<TransactionLT> topoDf = new ArrayList<>(df);
+        List<TransactionLT> topoDb = new ArrayList<>(db);
 
         topoDf.sort(topoComparator);
         topoDb.sort(topoComparator);
@@ -640,9 +644,9 @@ public class DependencyGraph<V, E>
         // merge these suckers together in topological order
         SortedSet<Integer> availableTopoIndices = new TreeSet<>();
 
-        // we have to cast to the generic type, can't do "new V[size]" in java
+        // we have to cast to the generic type, can't do "new TransactionLT[size]" in java
         // 5;
-        V[] bigL = (V[]) new Object[df.size() + db.size()];
+        TransactionLT[] bigL =  new TransactionLT[df.size() + db.size()];
         int lIndex = 0; // this index is used for the sole purpose of pushing
                         // into
 
@@ -650,7 +654,7 @@ public class DependencyGraph<V, E>
         // assume (for now) that we are resetting visited
         boolean clearVisited = true;
 
-        for (V vertex : topoDb) {
+        for (TransactionLT vertex : topoDb) {
             Integer topoIndex = topoOrderMap.getTopologicalIndex(vertex);
 
             // add the available indices to the set
@@ -667,7 +671,7 @@ public class DependencyGraph<V, E>
             }
         }
 
-        for (V vertex : topoDf) {
+        for (TransactionLT vertex : topoDf) {
             Integer topoIndex = topoOrderMap.getTopologicalIndex(vertex);
 
             // add the available indices to the set
@@ -686,7 +690,7 @@ public class DependencyGraph<V, E>
         lIndex = 0; // reusing lIndex
         for (Integer topoIndex : availableTopoIndices) {
             // assign the indexes to the elements of bigL in order
-            V vertex = bigL[lIndex++]; // note the post-increment
+            TransactionLT vertex = bigL[lIndex++]; // note the post-increment
             topoOrderMap.putVertex(topoIndex, vertex);
         }
     }
@@ -694,11 +698,11 @@ public class DependencyGraph<V, E>
     /**
      * An interface for storing the topological ordering.
      *
-     * @param <V> the graph vertex type
+     * @param <TransactionLT> the graph vertex type
      *
      * @author Peter Giles
      */
-    protected interface TopoOrderMap<V>
+    protected interface TopoOrderMap<TransactionLT>
         extends Serializable
     {
         /**
@@ -707,7 +711,7 @@ public class DependencyGraph<V, E>
          * @param index the topological index
          * @param vertex the vertex
          */
-        void putVertex(Integer index, V vertex);
+        void putVertex(Integer index, TransactionLT vertex);
 
         /**
          * Get the vertex at the given topological index.
@@ -715,7 +719,7 @@ public class DependencyGraph<V, E>
          * @param index the topological index
          * @return vertex the vertex
          */
-        V getVertex(Integer index);
+        TransactionLT getVertex(Integer index);
 
         /**
          * Get the topological index of the given vertex.
@@ -724,7 +728,7 @@ public class DependencyGraph<V, E>
          * @return the index that the vertex is at, or null if the vertex isn't in the topological
          *         ordering
          */
-        Integer getTopologicalIndex(V vertex);
+        Integer getTopologicalIndex(TransactionLT vertex);
 
         /**
          * Remove the given vertex from the topological ordering.
@@ -733,7 +737,7 @@ public class DependencyGraph<V, E>
          * @return the index that the vertex was at, or null if the vertex wasn't in the topological
          *         ordering
          */
-        Integer removeVertex(V vertex);
+        Integer removeVertex(TransactionLT vertex);
 
         /**
          * Remove all vertices from the topological ordering.
@@ -802,13 +806,13 @@ public class DependencyGraph<V, E>
      *
      * @author Peter Giles
      */
-    protected static class TopoVertexBiMap<V>
-        implements TopoOrderMap<V>
+    protected static class TopoVertexBiMap<TransactionLT>
+        implements TopoOrderMap<TransactionLT>
     {
         private static final long serialVersionUID = 1L;
 
-        private final Map<Integer, V> topoToVertex = new HashMap<>();
-        private final Map<V, Integer> vertexToTopo = new HashMap<>();
+        private final Map<Integer, TransactionLT> topoToVertex = new HashMap<>();
+        private final Map<TransactionLT, Integer> vertexToTopo = new HashMap<>();
 
         /**
          * Constructor
@@ -818,26 +822,26 @@ public class DependencyGraph<V, E>
         }
 
         @Override
-        public void putVertex(Integer index, V vertex)
+        public void putVertex(Integer index, TransactionLT vertex)
         {
             topoToVertex.put(index, vertex);
             vertexToTopo.put(vertex, index);
         }
 
         @Override
-        public V getVertex(Integer index)
+        public TransactionLT getVertex(Integer index)
         {
             return topoToVertex.get(index);
         }
 
         @Override
-        public Integer getTopologicalIndex(V vertex)
+        public Integer getTopologicalIndex(TransactionLT vertex)
         {
             return vertexToTopo.get(vertex);
         }
 
         @Override
-        public Integer removeVertex(V vertex)
+        public Integer removeVertex(TransactionLT vertex)
         {
             Integer topoIndex = vertexToTopo.remove(vertex);
             if (topoIndex != null) {
@@ -862,12 +866,12 @@ public class DependencyGraph<V, E>
      * @author Peter Giles
      */
     protected class TopoVertexMap
-        implements TopoOrderMap<V>
+        implements TopoOrderMap<TransactionLT>
     {
         private static final long serialVersionUID = 1L;
 
-        private final List<V> topoToVertex = new ArrayList<>();
-        private final Map<V, Integer> vertexToTopo = new HashMap<>();
+        private final List<TransactionLT> topoToVertex = new ArrayList<>();
+        private final Map<TransactionLT, Integer> vertexToTopo = new HashMap<>();
 
         /**
          * Constructor
@@ -877,7 +881,7 @@ public class DependencyGraph<V, E>
         }
 
         @Override
-        public void putVertex(Integer index, V vertex)
+        public void putVertex(Integer index, TransactionLT vertex)
         {
             int translatedIndex = translateIndex(index);
 
@@ -891,19 +895,19 @@ public class DependencyGraph<V, E>
         }
 
         @Override
-        public V getVertex(Integer index)
+        public TransactionLT getVertex(Integer index)
         {
             return topoToVertex.get(translateIndex(index));
         }
 
         @Override
-        public Integer getTopologicalIndex(V vertex)
+        public Integer getTopologicalIndex(TransactionLT vertex)
         {
             return vertexToTopo.get(vertex);
         }
 
         @Override
-        public Integer removeVertex(V vertex)
+        public Integer removeVertex(TransactionLT vertex)
         {
             Integer topoIndex = vertexToTopo.remove(vertex);
             if (topoIndex != null) {
@@ -1013,7 +1017,7 @@ public class DependencyGraph<V, E>
      * This implementation is close to the performance of {@link VisitedArrayListImpl}, with 1/8 the
      * memory usage.
      *
-     * @author John V. Sichi
+     * @author John TransactionLT. Sichi
      */
     protected static class VisitedBitSetImpl
         implements VisitedStrategy, VisitedStrategyFactory
@@ -1279,12 +1283,12 @@ public class DependencyGraph<V, E>
      * @author Peter Giles
      */
     private class TopoComparator
-        implements Comparator<V>, Serializable
+        implements Comparator<TransactionLT>, Serializable
     {
         private static final long serialVersionUID = 8144905376266340066L;
 
         @Override
-        public int compare(V o1, V o2)
+        public int compare(TransactionLT o1, TransactionLT o2)
         {
             return topoOrderMap
                 .getTopologicalIndex(o1).compareTo(topoOrderMap.getTopologicalIndex(o2));
@@ -1298,7 +1302,7 @@ public class DependencyGraph<V, E>
      * @author Peter Giles
      */
     private class TopoIterator
-        implements Iterator<V>
+        implements Iterator<TransactionLT>
     {
         private int currentTopoIndex;
         private final long expectedTopoModCount = topoModCount;
@@ -1321,7 +1325,7 @@ public class DependencyGraph<V, E>
         }
 
         @Override
-        public V next()
+        public TransactionLT next()
         {
             if (expectedTopoModCount != topoModCount) {
                 throw new ConcurrentModificationException();
@@ -1346,7 +1350,7 @@ public class DependencyGraph<V, E>
                 throw new ConcurrentModificationException();
             }
 
-            V vertexToRemove;
+            TransactionLT vertexToRemove;
             if ((vertexToRemove = topoOrderMap.getVertex(currentTopoIndex)) != null) {
                 topoOrderMap.removeVertex(vertexToRemove);
             } else {

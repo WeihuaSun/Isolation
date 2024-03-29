@@ -12,7 +12,18 @@ public class TransactionLT {
     public long start;
     public long end;
     public ArrayList<OperatorLT> Ops;
+    public  long replaceTime;
 
+    public TransactionLT(){
+
+    }
+    public TransactionLT initTransaction(){
+        TransactionLT init = new TransactionLT();
+        init.setStart(0);
+        init.setEnd(0);
+        init.replaceTime=0;
+        return  init;
+    }
     public TransactionLT(long txnId, long clientId) {
         Ops = new ArrayList<>();
         this.txnId = txnId;
