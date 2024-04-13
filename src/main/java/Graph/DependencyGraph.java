@@ -436,6 +436,9 @@ public class DependencyGraph
         }
     }
 
+    public void setEdge(TransactionLT sourceVertex,TransactionLT targetVertex,DependencyEdge.State state){
+        this.getEdge(sourceVertex,targetVertex).setState(state);
+    }
 
     /**
      * Get the ancestors of a vertex.

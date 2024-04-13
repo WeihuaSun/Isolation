@@ -25,6 +25,11 @@ public class TxnLevel extends Verifier{
     public TreeSet<WriteLT> toObsoleteWrite;
     public HashMap<Long, TreeSet<WriteLT>> writeMap;
 
+    public Set<WritePairLT> alivePairs;
+
+    public TreeSet<WritePairLT> toProcessPairs;
+    public DependencyGraph g;
+
 
     public TxnLevel(RunVerifier.IsolationLevel isolation,String logPath){
         this.isolation = isolation;
@@ -140,7 +145,7 @@ public class TxnLevel extends Verifier{
         }
     }
 
-    public void detectAnomaly(List<TransactionLT> sortedHistory) throws ISException.InternalRead, Verifier.ISException.ReadFromUnknown {
+    public void detectAnomaly(List<TransactionLT> sortedHistory) throws ISException.InternalRead, ISException.ReadFromUnknown {
         for(TransactionLT txn:sortedHistory){
             under.addVertex(txn);
             over.addVertex(txn);
@@ -296,7 +301,7 @@ public class TxnLevel extends Verifier{
                 newWrite.add(local);
                 newWrite.add(Constants.initWrite);
                 under.addEdge(Constants.initTxn, local.parent, new DependencyEdge(DependencyEdge.Type.WW));
-                writeMap.put(key, newWrite);
+                //writeMap.put(key, newWrite);
             } else {
                 for (WriteLT other : otherWrites) {
                     if (other.parent.end > checkStart) {
@@ -306,7 +311,7 @@ public class TxnLevel extends Verifier{
                     } else {//other.parent.iEnd<=checkStart
                         //更新replaceTime
                         other.replaceTime = Math.min(checkEnd, other.replaceTime);
-                        addEdge(under, other.parent, local.parent, "WW");//WW
+                        //addEdge(under, other.parent, local.parent, "WW");//WW
                     }
                 }
             }

@@ -18,10 +18,7 @@ public class WriteLT extends OperatorLT {
         super(opId, parent);
         this.key = key;
     }
-    public WriteLT initInstance(){
-        TransactionLT t =
-        return new WriteLT(-1, ,-1);
-    }
+
     public void setReplaceTime(long replaceTime){
         this.replaceTime = replaceTime;
     }
