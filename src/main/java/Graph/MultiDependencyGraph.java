@@ -49,6 +49,7 @@ public class MultiDependencyGraph extends DirectedWeightedMultigraph<Transaction
         dfs(s,t,cg,visited,cVisited);
         return isD;
     }
+<<<<<<< HEAD
 
     public List<Set<TransactionLT>> dfs(TransactionLT s,TransactionLT t,SupportGraph over, SupportGraph under, Set<Long> visited,Set<Long> cVisited,long left,long right){
         List<Set<TransactionLT>> reaches= new ArrayList<>();
@@ -60,11 +61,20 @@ public class MultiDependencyGraph extends DirectedWeightedMultigraph<Transaction
             return reaches; //emptyList,but not null
         if(visited.contains(s.txnId)||s.end<=left||s.start>=right)
             return null;//null,mean this vertex cannot reach the target
+=======
+    public Set<TransactionLT> dfs(TransactionLT s,TransactionLT t,DependencyGraph cg,Set<Long> visited,Set<Long> cVisited){
+        Set<TransactionLT> reach = new HashSet<>();
+        if(s.equals(t))
+            return reach; //emptyList
+        if(visited.contains(s.txnId))
+            return null;
+>>>>>>> 676b501 (s)
         else
             visited.add(s.txnId);
 
         for(DependencyEdge outEdge:this.outgoingEdgesOf(s)){
             TransactionLT edgeEnd = this.getEdgeTarget(outEdge);
+<<<<<<< HEAD
             if(t.equals(edgeEnd)){
                 if(outEdge.getState()== DependencyEdge.State.Undetermined){
                     Long [] st = new Long[2];
@@ -92,6 +102,22 @@ public class MultiDependencyGraph extends DirectedWeightedMultigraph<Transaction
         cVisited.add(s.txnId);
         visited.remove(s.txnId);
         return reaches;
+=======
+            Set<TransactionLT> cNodes = dfs(edgeEnd,t,cg,visited,cVisited);
+            if(!outEdge.isDeterminate()){
+                cg.addEdge(s,edgeEnd);
+                reach.add(edgeEnd);
+            }
+            else{
+                if(cNodes!=null)
+                    reach.addAll(cNodes);
+            }
+
+        }
+        cVisited.add(s.txnId);
+        visited.remove(s.txnId);
+        return reach;
+>>>>>>> 676b501 (s)
     }
 
 

@@ -3,14 +3,29 @@ package Graph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 
 import java.util.ArrayList;
-
+//Weight= writePairs.size() :determinate
+//Weight = savePoint 10000 -- undetermined
 public class DependencyEdge extends DefaultWeightedEdge {
     public static enum Type{
         TO,WR,RW,WW
     }
+<<<<<<< HEAD
     public static enum State{
         Determinate,Derived,Undetermined
     }
+=======
+    private State state = State.Derived;
+    public void setState(State state){
+        this.state = state;
+    }
+    public static enum State{
+        Determinate,Derived,Undetermined
+    }
+    public State getState(){
+        return this.state;
+    }
+    public final static int Large = 100000;
+>>>>>>> 676b501 (s)
     private boolean TO=false;
     private boolean WR=false;
     private boolean RW=false;
@@ -18,6 +33,7 @@ public class DependencyEdge extends DefaultWeightedEdge {
     private boolean determinate=false;
     private State state = State.Undetermined;
     public ArrayList<WritePair> writePairs;
+    public ArrayList<DependencyEdge> affectEdges;
 
     // 构造函数
     public DependencyEdge(Type type) {
@@ -34,6 +50,7 @@ public class DependencyEdge extends DefaultWeightedEdge {
         switch (type){
             case TO:
                 this.determinate = true;
+                this.state = State.Determinate;
                 this.TO = true;
                 break;
             case WR:
@@ -42,6 +59,7 @@ public class DependencyEdge extends DefaultWeightedEdge {
             case RW:
                 this.RW = true;
                 this.determinate = true;
+                this.state = State.Determinate;
                 break;
             case WW:
                 this.WW = true;
@@ -67,5 +85,12 @@ public class DependencyEdge extends DefaultWeightedEdge {
     }
     public void setDeterminate(boolean determinate){
         this.determinate = determinate || this.determinate;
+        if(determinate){
+            for(DependencyEdge e:affectEdges){
+                for(WritePair wp:e.writePairs){
+                    wp.checkEdge(this);
+                }
+            }
+        }
     }
 }

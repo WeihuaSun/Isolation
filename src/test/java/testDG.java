@@ -1,6 +1,4 @@
-import Graph.DependencyEdge;
-import Graph.DependencyGraph;
-import Graph.TransactionLT;
+import Graph.*;
 import org.checkerframework.checker.units.qual.A;
 import org.jgrapht.graph.DirectedWeightedPseudograph;
 import org.jgrapht.graph.WeightedMultigraph;
@@ -16,7 +14,7 @@ public class testDG {
     public ArrayList<TransactionLT> ver = new ArrayList<>();
     public testDG(){
         for(int i=1;i<=8;i++){
-            TransactionLT vertex = new TransactionLT(i,0);
+            TransactionLT vertex =  new TransactionLT(i,0);
             ver.add(vertex);
             g.addVertex(vertex);
         }
@@ -37,6 +35,9 @@ public class testDG {
     }
     public static void main(String[] args) {
         testDG t = new testDG();
+        GraphReduce gr = new GraphReduce(t.g,t.ver.get(0),t.ver.get(4));
+        SupportGraph over=null,under = null;
+        gr.getSupportGraph(over,under);
         List<List<DependencyEdge>> dps = new ArrayList<>();
         boolean isd = t.g.checkEdge(t.ver.get(4),t.ver.get(0),dps);
         dps.sort(Comparator.comparing(List::size));
