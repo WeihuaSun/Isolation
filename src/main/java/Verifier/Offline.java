@@ -29,6 +29,7 @@ public class Offline extends Verifier{
     public Set<WritePair> alivePairs;
 
     public TreeSet<WritePair> toProcessPairs;
+    public Queue<DependencyEdge> knownEdges;
 
 
     public Map<DependencyEdge, Graph.WritePair.Direction> edge2direction;
@@ -61,6 +62,29 @@ public class Offline extends Verifier{
 
     }
 
+
+
+    public void preScan(List<TransactionLT> sortedTxns) throws Verifier.ISException.InternalRead, Verifier.ISException.ReadFromUnknown {
+        for(TransactionLT txn:sortedTxns){
+            this.curTxn = txn;
+            this.checkStart = txn.start;
+            this.checkEnd = txn.end;
+            timeOrder();
+            HashMap<Long,WriteLT> localWrites = analyseTransaction();
+            removeObsoleteWrites();
+            findReadFrom();
+            sortWrite(localWrites);
+        }
+
+    }
+
+
+    public void topLevel(List<TransactionLT> sortedHistory) throws Verifier.ISException.InternalRead {
+        while (knownEdges.isEmpty()){
+
+        }
+
+    }
 
     private void loadHistory(List<List<TransactionLT>> history, String logPath) {
         File logDir = new File(logPath);
@@ -158,31 +182,21 @@ public class Offline extends Verifier{
 
     public void detectAnomaly(List<TransactionLT> sortedHistory) throws ISException.InternalRead, Verifier.ISException.ReadFromUnknown, Verifier.ISException.CycleException {
 
-        for(TransactionLT txn:sortedHistory){
-            under.addVertex(txn);
-            over.addVertex(txn);
-            checkStart = txn.start;
-            checkEnd = txn.end;
-            curTxn = txn;
-            timeOrder();
-            HashMap<Long,WriteLT> localWrites = analyseTransaction();
-            removeObsoleteWrites();
-            findReadFrom();
-            sortWrite(localWrites);
-            writeDeduce();
-        }
-
     }
+
+    /**
+     * 处理事务间的TO关系，生产最小的TO边集
+     */
     public void timeOrder(){
         Iterator<TransactionLT> iterator = aliveTxns.iterator();
         while (iterator.hasNext()) {
             TransactionLT txn = iterator.next();
-            if (txn.replaceTime <= checkStart)
+            if (txn.replaceTime <= checkStart)//已经被替代
                 iterator.remove();
             else if (txn.end <= checkStart) {
-                addEdge(under, txn, curTxn, Type.TO);
-                addEdge(over, txn, curTxn,Type.TO);
-                txn.replaceTime = Math.min(txn.replaceTime, checkEnd);
+                DependencyEdge toEdge = new DependencyEdge(Type.TO);//产生确定的TO边
+                knownEdges.add(toEdge);
+                txn.replaceTime = Math.min(txn.replaceTime, checkEnd);//更新replaceTime
             }
         }
     }
@@ -206,16 +220,16 @@ public class Offline extends Verifier{
      * 分析单个事务，提取事务的写，将事务的读添加到待检查的读队列unKnownReads
      * @return 事务的所有最终的写操作，也叫做安装版本
      * @throws ISException.InternalRead 看到自己的写：如果事务的读操作读取的元组本事务已经更新过，且更新在读取之后，但是读操作读取的值不是本操作的，报错
-     */
-    private HashMap<Long,WriteLT> analyseTransaction() throws ISException.InternalRead {
+     */    private HashMap<Long,WriteLT> analyseTransaction() throws ISException.InternalRead {
         HashMap<Long, WriteLT> localWrites = new HashMap<>();//key->WriteOp
         for(OperatorLT op:curTxn.Ops){
             if(op instanceof ReadLT read){
                 WriteLT mayWrite = localWrites.get(read.key);
                 if(mayWrite !=null && mayWrite.opId != read.readFromWop){
-                        throw new ISException.InternalRead();
+                    throw new ISException.InternalRead();
                 }
                 else{
+
                     unKnownReads.add(read);
                     minReadTime.getOrDefault(read.key,new TreeSet<>()).add(read.parent.start);
                 }
@@ -347,108 +361,7 @@ public class Offline extends Verifier{
         }
     }
 
-    /**
-     * 推断wwPair依赖关系
-     *
-     * @throws ISException.CycleException 出现环路异常
-     */
-    private void writeDeduce()throws ISException.CycleException{
-        for (WritePair wp : toProcessPairs) {
-            wp.deduce(under);
 
-//            List<List<DependencyEdge>> underSupportA = new ArrayList<>();
-//            List<List<DependencyEdge>> underSupportB = new ArrayList<>();
-//            boolean determinateA = wp.checkDirection(true, under, underSupportA);//try WriteB-> WriteA
-//            boolean determinateB = wp.checkDirection(true, under, underSupportB);//try WriteA-> WriteB
-//            if (determinateA && determinateB) {
-//                /*
-//                 如果A->B和B->A两个方向上都有确定的支撑路径，那么under中出现确定的循环，报错
-//                 */
-//                throw new ISException.CycleException();
-//            } else if (determinateA) {//!determinateB
-//                /*
-//                A->B方向上有确定的支撑路径，B->A方向上没有确定的支撑路径
-//                case1.B->A方向上有派生的支撑路径(!underSupportB.isEmpty())回溯B->A的派生支撑路径;
-//                case2.B->A方向上没有派生的支撑路径(underSupportB.isEmpty())，则A->B变为确定的;
-//                 */
-//                if (!underSupportB.isEmpty()) {//case 1
-//                    wp.backtrace(underSupportB);//回溯
-//                } else {//case 2
-//                    wp.setDirection(true, under);
-//                    wp.setDirection(true, over);
-//                }
-//            } else if (determinateB) {//!determinateA
-//                if (!underSupportA.isEmpty()) {
-//                    wp.backtrace(underSupportA);//回溯
-//                } else {
-//                    wp.setDirection(false, under);
-//                    wp.setDirection(false, over);
-//                }
-//            } else {//两个方向上都没有确定的支撑路径
-//
-//                if (underSupportA.isEmpty() && underSupportB.isEmpty()) {
-//                    /*
-//                    两个方向上都没有派生的支撑路径，则在over中检查
-//                    case1:两个方向都有支撑，设置SavePoint
-//                    case2:如果A->B有支撑，而B->A无支撑，则A->B是确定的
-//                    case3:如果B->A有支撑，而A->B无支撑，则B->A是确定的
-//                    case4.over中两个方向上都没有支撑边，则在以后的推导过程中A->B和B->A都不会参与环的形成
-//                     */
-//                    boolean overA = wp.checkDirection(false, over);//try writeB->writeA
-//                    boolean overB = wp.checkDirection(true, over);//try writeA->writeB
-//                    if (overA && overB) {//case 1
-//                        /*
-//                         * SavePoint:最自由的SavePoint,在over中两个方向上都有支撑集，如果我们选择方向A->B，其支撑集为Support(A->B),否定集为Support(B->A)
-//                         * 在以后的执行过程中，当支撑集中的边变为确定的时候，我们删除该SavePoint，并将A->B设置为确认的，然后级联的操作
-//                         * 在以后的执行过程中，当否定集中的路径变为确定的时候，需要回溯，幸运的是，我们并不回溯所有的，只回溯由该边引起的直接冲突和级联冲突
-//                         * 否定集中，全部被否定，我们，我们也确定的推出A->B
-//                         */
-//                        wp.setDefaultDirection(under);
-//                    } else if (overA) {//case 2
-//                        wp.setDirection(true, under);
-//                        wp.setDirection(true, over);
-//                    } else if (overB) {//case 3
-//                        wp.setDirection(false, under);
-//                        wp.setDirection(false, over);
-//                    } else {//case 4
-//                        wp.clear();
-//                    }
-//                } else if (underSupportA.isEmpty()) {
-//                    /*
-//                    B->A有派生支撑路径，而A->B没有，检查over中是否存在A->B的支撑路径
-//                    case1.如果存在A->B的支撑路径，则设置SavePoint
-//                    case2.如果A->B无支撑路径，则B->A可以设置为确认
-//                     */
-//                    boolean overA = wp.checkDirection(false, over);
-//                    if (overA) {
-//                        /*
-//                        savePoint
-//                         */
-//                        wp.setSavePoint(false,null);
-//                    } else {
-//                        wp.setDirection(false, under);
-//                        wp.setDirection(false, over);
-//                    }
-//                } else if (underSupportB.isEmpty()) {
-//                    boolean overB = wp.checkDirection(true, over);
-//                    if (overB) {
-//                        /*
-//                        savePoint
-//                         */
-//                        wp.setSavePoint(true,null);
-//                    } else {
-//                        wp.setDirection(true, under);
-//                        wp.setDirection(true, over);
-//                    }
-//                } else {
-//                    /*
-//                    两个方向都有派生的支撑路径，则选择一个方向进行回溯
-//                     */
-//                    wp.defaultBacktrace(under);
-//                }
-
-        }
-    }
 
     private void CycleReport() {
 
