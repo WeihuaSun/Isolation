@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 package Verifier;
 
 import java.io.*;

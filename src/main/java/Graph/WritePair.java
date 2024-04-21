@@ -21,6 +21,10 @@ import java.util.*;
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+    private final Object directionObj;
+>>>>>>> a207553d7d77df7a30e93a5355730cd543bde6d8
     public WriteLT writeA;
     public WriteLT writeB;
     private int stage;//state:0-两个write都未过时；1-一个write过时；2-两个write过时
@@ -74,6 +78,7 @@ public class WritePair {
         this.alive = alive;
         this.toProcess = toProcess;
         this.isSavePoint = false;
+        this.directionObj = new Direction();
     }
     private boolean checkDirection(boolean direction,DependencyGraph g){
         return true;
@@ -379,6 +384,13 @@ public class WritePair {
     private void reverseDirection(boolean determinate,DependencyGraph g){
 
     }
+
+    public class Direction {
+
+
+    }
+
+
     private void backTrace(){
         backTrace(this.direction);
     }
