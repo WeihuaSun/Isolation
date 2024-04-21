@@ -10,10 +10,13 @@ public class DependencyEdge extends DefaultWeightedEdge {
         TO,WR,RW,WW
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
     public static enum State{
         Determinate,Derived,Undetermined
     }
 =======
+=======
+>>>>>>> main
     private State state = State.Derived;
     public void setState(State state){
         this.state = state;
@@ -25,7 +28,10 @@ public class DependencyEdge extends DefaultWeightedEdge {
         return this.state;
     }
     public final static int Large = 100000;
+<<<<<<< HEAD
 >>>>>>> 676b501 (s)
+=======
+>>>>>>> main
     private boolean TO=false;
     private boolean WR=false;
     private boolean RW=false;

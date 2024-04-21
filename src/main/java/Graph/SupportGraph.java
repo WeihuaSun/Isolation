@@ -1,6 +1,7 @@
 package Graph;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import java.util.HashMap;
 
 public class SupportGraph {
@@ -8,6 +9,8 @@ public class SupportGraph {
         return null;
     }
 =======
+=======
+>>>>>>> main
 
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.DirectedWeightedMultigraph;
@@ -29,5 +32,8 @@ public class SupportGraph extends DirectedWeightedMultigraph<Integer, DefaultWei
         return null;
     }
 
+<<<<<<< HEAD
 >>>>>>> 676b501 (s)
+=======
+>>>>>>> main
 }

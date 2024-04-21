@@ -50,6 +50,7 @@ public class MultiDependencyGraph extends DirectedWeightedMultigraph<Transaction
         return isD;
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     public List<Set<TransactionLT>> dfs(TransactionLT s,TransactionLT t,SupportGraph over, SupportGraph under, Set<Long> visited,Set<Long> cVisited,long left,long right){
         List<Set<TransactionLT>> reaches= new ArrayList<>();
@@ -62,18 +63,24 @@ public class MultiDependencyGraph extends DirectedWeightedMultigraph<Transaction
         if(visited.contains(s.txnId)||s.end<=left||s.start>=right)
             return null;//null,mean this vertex cannot reach the target
 =======
+=======
+>>>>>>> main
     public Set<TransactionLT> dfs(TransactionLT s,TransactionLT t,DependencyGraph cg,Set<Long> visited,Set<Long> cVisited){
         Set<TransactionLT> reach = new HashSet<>();
         if(s.equals(t))
             return reach; //emptyList
         if(visited.contains(s.txnId))
             return null;
+<<<<<<< HEAD
 >>>>>>> 676b501 (s)
+=======
+>>>>>>> main
         else
             visited.add(s.txnId);
 
         for(DependencyEdge outEdge:this.outgoingEdgesOf(s)){
             TransactionLT edgeEnd = this.getEdgeTarget(outEdge);
+<<<<<<< HEAD
 <<<<<<< HEAD
             if(t.equals(edgeEnd)){
                 if(outEdge.getState()== DependencyEdge.State.Undetermined){
@@ -103,6 +110,8 @@ public class MultiDependencyGraph extends DirectedWeightedMultigraph<Transaction
         visited.remove(s.txnId);
         return reaches;
 =======
+=======
+>>>>>>> main
             Set<TransactionLT> cNodes = dfs(edgeEnd,t,cg,visited,cVisited);
             if(!outEdge.isDeterminate()){
                 cg.addEdge(s,edgeEnd);
@@ -117,7 +126,10 @@ public class MultiDependencyGraph extends DirectedWeightedMultigraph<Transaction
         cVisited.add(s.txnId);
         visited.remove(s.txnId);
         return reach;
+<<<<<<< HEAD
 >>>>>>> 676b501 (s)
+=======
+>>>>>>> main
     }
 
 

@@ -2,17 +2,24 @@ package Graph;
 
 import Verifier.ISException;
 <<<<<<< HEAD
+<<<<<<< HEAD
 import org.jgrapht.graph.*;
 =======
 import com.sun.source.tree.Tree;
 import org.jgrapht.graph.DirectedMultigraph;
 import org.jgrapht.graph.DirectedWeightedMultigraph;
 >>>>>>> 676b501 (s)
+=======
+import com.sun.source.tree.Tree;
+import org.jgrapht.graph.DirectedMultigraph;
+import org.jgrapht.graph.DirectedWeightedMultigraph;
+>>>>>>> main
 
 import java.util.*;
 
 //
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     public WriteLT writeA;
     public WriteLT writeB;
@@ -35,6 +42,8 @@ import java.util.*;
 
     public WritePair(WriteLT writeA, WriteLT writeB,Set<WritePair> alive,TreeSet<WritePair> toProcess) {
 =======
+=======
+>>>>>>> main
 public class WritePair {
     ArrayList<WritePair> parent;
     boolean isSavePoint =false;
@@ -91,6 +100,121 @@ public class WritePair {
     private void backTrace(){
         backTrace(this.direction);
     }
+    private boolean checkDirection(boolean direction,DependencyGraph g){
+        return true;
+    }
+    private void reverseDirection(boolean determinate,DependencyGraph g){
+
+    }
+    private void backTrace(boolean direction,boolean determinate,DependencyGraph g){
+        List<SupportGraph> supports;
+        if (direction)
+            supports = underSupportTrue;
+        else
+            supports = underSupportFalse;
+        for(SupportGraph g:supports){
+            HashMap<DependencyEdge,Boolean> cut = g.getCut();
+            for(Map.Entry<DependencyEdge,Boolean> entry: cut.entrySet()){
+                entry.getKey().BackTrace(entry.getValue()||determinate);
+            }
+        }
+        if(assigned)
+            reverseDirection(determinate,g);
+
+    }
+    private void backTrace(){
+        backTrace(this.direction);
+    }
+
+    public void deduce(DependencyGraph g) throws ISException.CycleException {
+        boolean supportTrue = checkDirection(true,g);
+        boolean supportFalse = checkDirection(false,g);
+        if (supportTrue && supportFalse) {
+            /* 如果A->B和B->A两个方向上都有确定的支撑路径，那么出现确定的循环，抛出异常 */
+            throw new ISException.CycleException();
+        } else if(supportTrue){
+            /*
+            A->B方向上有确定的支撑路径，B->A方向上没有确定的支撑路径
+            case1.B->A方向上有派生的支撑路径(!underSupportFalse.isEmpty())，则回溯B->A的派生支撑路径;
+            case2.B->A方向上没有派生的支撑路径(underSupportFalse.isEmpty())，则A->B变为确定的;
+            */
+            if (!underSupportFalse.isEmpty()) {//case 1
+                backTrace();
+            } else {//case 2
+                setDirection(true, g);
+            }
+        } else if (supportFalse) {
+            if (!underSupportTrue.isEmpty()) {//case 1
+                backTrace();
+            } else {//case 2
+                setDirection(false, g);
+            }
+        }else {
+            if(underSupportTrue.isEmpty()&&underSupportFalse.isEmpty()){
+                if(!overSupportTrue.isEmpty()&&!overSupportFalse.isEmpty()){
+                    boolean direction = writeA.parent.end<=writeB.parent.end;
+                    setSavePoint(direction,g);
+                } else if (!overSupportTrue.isEmpty()) {
+                    setDirection(true, g);
+                } else if (!overSupportFalse.isEmpty()) {
+                    setDirection(false, g);
+                } else {
+                    clear();
+                }
+            }else if(underSupportTrue.isEmpty()){
+                if(!overSupportTrue.isEmpty()){
+                    setSavePoint(false,g);
+                }else{
+                    setDirection(false,g);
+                }
+            }else if(underSupportFalse.isEmpty()){
+                if(!overSupportFalse.isEmpty()){
+                    setSavePoint(true,g);
+                }
+                else{
+                    setDirection(true,g);
+                }
+            }else{
+                boolean direction = writeA.parent.end>=writeB.parent.end;
+                backTrace(direction);
+            }
+        }
+    }
+
+
+
+
+
+//    private boolean checkSupportOver(boolean direction,DependencyEdge e){
+//        boolean flag = false;
+//        Set<Set<DependencyEdge>> udPaths;
+//        if(direction){
+//            udPaths = overSupportA;
+//        }
+//        else{
+//            udPaths = overSupportB;
+//        }
+//
+//        return flag;
+//    }
+
+    public boolean checkEdge(DependencyEdge e,List<Set<DependencyEdge>> paths){
+        boolean flag = false;
+        for (Set<DependencyEdge> edgeSet : paths) {
+            edgeSet.remove(e);
+            if (edgeSet.isEmpty()) {
+                flag = true;
+            }
+        }
+        return flag;
+    }
+
+    public boolean checkEdge(DependencyEdge e){
+        return true;
+    }
+
+
+
 
     public void deduce(DependencyGraph g) throws ISException.CycleException {
         boolean supportTrue = checkDirection(true,g);
@@ -294,6 +418,7 @@ public class WritePair {
         this.toProcess.remove(this);
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
     public void setSavePoint(boolean direction,Object subGraph){
 
     }
@@ -312,6 +437,8 @@ public class WritePair {
     public void backtrace(Object subGraph) throws ISException.CycleException {
 
 =======
+=======
+>>>>>>> main
 
     //设置检查点
     public void setSavePoint(){
@@ -319,7 +446,10 @@ public class WritePair {
     }
     public void clearSavePoint(){
         this.isSavePoint = false;
+<<<<<<< HEAD
 >>>>>>> 676b501 (s)
+=======
+>>>>>>> main
     }
 
 

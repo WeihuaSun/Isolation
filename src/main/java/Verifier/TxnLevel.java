@@ -34,6 +34,11 @@ public class TxnLevel extends Verifier{
     public TreeSet<WritePairLT> toProcessPairs;
     public DependencyGraph g;
 
+    public Set<WritePairLT> alivePairs;
+
+    public TreeSet<WritePairLT> toProcessPairs;
+    public DependencyGraph g;
+
 
 
 
@@ -156,10 +161,14 @@ public class TxnLevel extends Verifier{
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     public void detectAnomaly(List<TransactionLT> sortedHistory) throws ISException.InternalRead, Verifier.ISException.ReadFromUnknown, Verifier.ISException.CycleException {
 =======
     public void detectAnomaly(List<TransactionLT> sortedHistory) throws ISException.InternalRead, ISException.ReadFromUnknown {
 >>>>>>> 676b501 (s)
+=======
+    public void detectAnomaly(List<TransactionLT> sortedHistory) throws ISException.InternalRead, ISException.ReadFromUnknown {
+>>>>>>> main
         for(TransactionLT txn:sortedHistory){
             under.addVertex(txn);
             over.addVertex(txn);
@@ -336,7 +345,10 @@ public class TxnLevel extends Verifier{
                 newWrite.add(Constants.initWrite);
                 under.addEdge(Constants.initTxn, local.parent, new DependencyEdge(DependencyEdge.Type.WW));
                 //writeMap.put(key, newWrite);
+<<<<<<< HEAD
 >>>>>>> 676b501 (s)
+=======
+>>>>>>> main
             } else {
                 for (WriteLT other : otherWrites) {
                     if (other.parent.end > checkStart) {
@@ -348,12 +360,16 @@ public class TxnLevel extends Verifier{
                         //更新replaceTime
                         other.replaceTime = Math.min(checkEnd, other.replaceTime);
 <<<<<<< HEAD
+<<<<<<< HEAD
                         other.neighbors.add(local.parent);
                         addEdge(under, other.parent, local.parent, Type.WW,true);//WW
                         addEdge(over,other.parent,local.parent,Type.WW,true);
 =======
                         //addEdge(under, other.parent, local.parent, "WW");//WW
 >>>>>>> 676b501 (s)
+=======
+                        //addEdge(under, other.parent, local.parent, "WW");//WW
+>>>>>>> main
                     }
                 }
             }

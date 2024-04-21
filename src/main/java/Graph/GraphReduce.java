@@ -1,6 +1,7 @@
 package Graph;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import java.util.*;
 
 public class GraphReduce {
@@ -72,6 +73,8 @@ public class GraphReduce {
                 if(overVertexMap.get(head)!=overVertexMap.get(end)){
                     sGraph.addEdge(overVertexMap.get(end),overVertexMap.get(head));
 =======
+=======
+>>>>>>> main
 import org.jgrapht.alg.flow.EdmondsKarpMFImpl;
 import org.jgrapht.graph.DefaultWeightedEdge;
 
@@ -138,13 +141,17 @@ public class GraphReduce {
                     DefaultWeightedEdge e = sGraph.addEdge(vertexMap.get(end).id, vertexMap.get(head).id);
                     sGraph.edgeMap.put(edge,e);
                     sGraph.reEdgeMap.put(e,edge);
+<<<<<<< HEAD
 >>>>>>> 676b501 (s)
+=======
+>>>>>>> main
                 }
             }
             return sGraph;
         }
     }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 
@@ -295,6 +302,8 @@ public class GraphReduce {
 
     }
 =======
+=======
+>>>>>>> main
     public boolean getReachability() {
         return reachability==Reachability.Reachable;
     }
@@ -458,5 +467,8 @@ public class GraphReduce {
 
     }
 
+<<<<<<< HEAD
 >>>>>>> 676b501 (s)
+=======
+>>>>>>> main
 }
