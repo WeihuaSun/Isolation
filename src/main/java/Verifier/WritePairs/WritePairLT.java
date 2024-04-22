@@ -1,9 +1,15 @@
-package Graph;
+package Verifier.WritePairs;
 
+import Graph.Algorithms.GraphReduce;
+import Graph.Edge.DependencyEdge;
+import Graph.Node.TransactionLT;
+import Graph.Operator.WriteLT;
+import Graph.graph.DependencyGraph;
+import Graph.graph.SupportGraph;
+import Verifier.Exception.ISException;
 import Verifier.TxnLevel;
 
 import java.util.*;
-import Verifier.ISException;
 
 public class WritePairLT {
     private final WriteLT writeA;

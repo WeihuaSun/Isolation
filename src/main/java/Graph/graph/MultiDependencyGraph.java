@@ -1,5 +1,8 @@
-package Graph;
+package Graph.graph;
 
+import Graph.Algorithms.AllDirectedPaths;
+import Graph.Edge.DependencyEdge;
+import Graph.Node.TransactionLT;
 import org.jgrapht.GraphPath;
 import org.jgrapht.graph.DirectedWeightedMultigraph;
 
@@ -9,7 +12,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public class MultiDependencyGraph extends DirectedWeightedMultigraph<TransactionLT,DependencyEdge> {
+public class MultiDependencyGraph extends DirectedWeightedMultigraph<TransactionLT, DependencyEdge> {
     public MultiDependencyGraph(Class<? extends DependencyEdge> edgeClass) {
         super(edgeClass);
     }
@@ -52,7 +55,7 @@ public class MultiDependencyGraph extends DirectedWeightedMultigraph<Transaction
 <<<<<<< HEAD
 <<<<<<< HEAD
 
-    public List<Set<TransactionLT>> dfs(TransactionLT s,TransactionLT t,SupportGraph over, SupportGraph under, Set<Long> visited,Set<Long> cVisited,long left,long right){
+    public List<Set<TransactionLT>> dfs(TransactionLT s, TransactionLT t, SupportGraph over, SupportGraph under, Set<Long> visited, Set<Long> cVisited, long left, long right){
         List<Set<TransactionLT>> reaches= new ArrayList<>();
         Set<TransactionLT> reachOver = new HashSet<>();
         Set<TransactionLT> reachUnder = new HashSet<>();

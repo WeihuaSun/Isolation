@@ -1,18 +1,16 @@
-package Graph;
+package Verifier.WritePairs;
 
-import Verifier.ISException;
+import Graph.Edge.DependencyEdge;
+import Graph.Node.TransactionLT;
+import Graph.Operator.WriteLT;
+import Graph.graph.DependencyGraph;
+import Graph.graph.SupportGraph;
+import Verifier.Exception.ISException;
 <<<<<<< HEAD
 <<<<<<< HEAD
-import org.jgrapht.graph.*;
 =======
-import com.sun.source.tree.Tree;
-import org.jgrapht.graph.DirectedMultigraph;
-import org.jgrapht.graph.DirectedWeightedMultigraph;
 >>>>>>> 676b501 (s)
 =======
-import com.sun.source.tree.Tree;
-import org.jgrapht.graph.DirectedMultigraph;
-import org.jgrapht.graph.DirectedWeightedMultigraph;
 >>>>>>> main
 
 import java.util.*;
@@ -80,7 +78,7 @@ public class WritePair {
         this.isSavePoint = false;
         this.directionObj = new Direction();
     }
-    private boolean checkDirection(boolean direction,DependencyGraph g){
+    private boolean checkDirection(boolean direction, DependencyGraph g){
         return true;
     }
     private void reverseDirection(boolean determinate,DependencyGraph g){

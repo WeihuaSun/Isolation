@@ -1,10 +1,10 @@
-package Graph;
+package Graph.Node;
 
-import Verifier.Graph;
+import Graph.Operator.OperatorLT;
 
 import java.util.ArrayList;
 
-public class TransactionLT {
+public class TransactionLT extends Vertex {
     public final static long INIT_TXN = -2;
     public long clientId;
     public long txnId;

@@ -3,8 +3,12 @@ package Verifier;
 import java.io.*;
 import java.util.*;
 
-import Graph.*;
-import Graph.DependencyEdge.Type;
+import Graph.Edge.DependencyEdge.Type;
+import Graph.Node.*;
+import Graph.Operator.*;
+import Graph.graph.DependencyGraph;
+import Verifier.Exception.ISException;
+import Verifier.WritePairs.WritePairLT;
 import org.jgrapht.graph.DirectedWeightedMultigraph;
 import org.jgrapht.util.SupplierUtil;
 
@@ -14,7 +18,7 @@ import org.jgrapht.util.SupplierUtil;
 public class TxnLevel extends Verifier{
     public RunVerifier.IsolationLevel isolation;
     public DependencyGraph under;
-    public DirectedWeightedMultigraph<TransactionLT,DependencyEdge> over;
+    public DirectedWeightedMultigraph<TransactionLT, DependencyEdge> over;
     public TransactionLT curTxn;
     public long checkStart;
     public long checkEnd;
@@ -205,7 +209,7 @@ public class TxnLevel extends Verifier{
         }
         g.addEdge(s,t,e);
     }
-    public void addEdge(DirectedWeightedMultigraph<TransactionLT,DependencyEdge> g,TransactionLT s,TransactionLT t,Type type,boolean ...d){
+    public void addEdge(DirectedWeightedMultigraph<TransactionLT, DependencyEdge > g,TransactionLT s,TransactionLT t,Type type,boolean ...d){
         DependencyEdge e = new DependencyEdge(type);
         if(d.length>0){
             e.setDeterminate(d[0]);

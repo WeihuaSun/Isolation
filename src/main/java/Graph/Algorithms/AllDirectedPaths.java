@@ -1,4 +1,4 @@
-package Graph;
+package Graph.Algorithms;
 
 /*
  * (C) Copyright 2015-2023, by Vera-Licona Research Group and Contributors.

@@ -1,4 +1,4 @@
-package Graph;
+package Graph.graph;
 /*
  * (C) Copyright 2008-2023, by Peter Giles and Contributors.
  *
@@ -21,6 +21,8 @@ import java.io.*;
 import java.util.*;
 import java.util.function.*;
 
+import Graph.Edge.DependencyEdge;
+import Graph.Node.TransactionLT;
 import org.jgrapht.graph.*;
 import org.jgrapht.graph.builder.*;
 import org.jgrapht.traverse.*;
@@ -61,7 +63,7 @@ import org.jgrapht.util.*;
  * @author Peter Giles
  */
 public class DependencyGraph
-        extends AbstractBaseGraph<TransactionLT, DependencyEdge>
+        extends BaseGraph<TransactionLT, DependencyEdge>
     implements Iterable<TransactionLT>
 {
     @Serial

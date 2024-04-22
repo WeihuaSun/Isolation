@@ -1,11 +1,11 @@
-package Graph;
+package Graph.Edge;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
 
 import java.util.ArrayList;
 //Weight= writePairs.size() :determinate
 //Weight = savePoint 10000 -- undetermined
-public class DependencyEdge extends DefaultWeightedEdge {
+public class DependencyEdge extends Edge {
     public static enum Type{
         TO,WR,RW,WW
     }

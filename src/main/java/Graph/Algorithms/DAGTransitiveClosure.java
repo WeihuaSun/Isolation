@@ -1,4 +1,4 @@
-package Graph;
+package Graph.Algorithms;
 
 import java.util.*;
 
@@ -54,7 +54,6 @@ public class DAGTransitiveClosure {
             for(Pair pair:record.indexChanges){
                 index[pair.x][pair.y] = -1;
             }
-
         }
     }
 

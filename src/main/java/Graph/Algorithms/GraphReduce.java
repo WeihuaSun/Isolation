@@ -1,7 +1,12 @@
-package Graph;
+package Graph.Algorithms;
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+import Graph.Edge.DependencyEdge;
+import Graph.Node.TransactionLT;
+import Graph.graph.SupportGraph;
+import Graph.graph.DependencyGraph;
+
 import java.util.*;
 
 public class GraphReduce {
@@ -308,7 +313,7 @@ public class GraphReduce {
         return reachability==Reachability.Reachable;
     }
 
-    static class VertexId implements Graph.VertexId {
+    static class VertexId {
         int id;
 
         public VertexId(int id) {

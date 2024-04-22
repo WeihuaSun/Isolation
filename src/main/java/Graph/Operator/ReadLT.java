@@ -1,14 +1,15 @@
-package Graph;
+package Graph.Operator;
 
-import java.io.DataInputStream;
+import Graph.Node.TransactionLT;
+
 import java.nio.ByteBuffer;
 
-public class ReadLT extends  OperatorLT{
+public class ReadLT extends OperatorLT {
     public long key;
     public long readFromTxn;
     public long readFromWop;
 
-    public ReadLT(long opId, TransactionLT parent,long key,long readFromTxn,long readFromWop) {
+    public ReadLT(long opId, TransactionLT parent, long key, long readFromTxn, long readFromWop) {
         super(opId, parent);
         this.key = key;
         this.readFromTxn = readFromTxn;

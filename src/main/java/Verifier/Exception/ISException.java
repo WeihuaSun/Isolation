@@ -1,4 +1,4 @@
-package Verifier;
+package Verifier.Exception;
 
 public class ISException {
     public static class InternalRead extends Exception {
@@ -9,12 +9,12 @@ public class ISException {
             super("Internal Read ");
         }
     }
-    public static class ReadFromUnknown extends Exception{
+    public static class ReadFromUnknown extends Exception {
         public ReadFromUnknown(){
             super("Read From Unknown Update(Aborted or Replaced)");
         }
     }
-    public static class ConflictUpdate extends Exception{
+    public static class ConflictUpdate extends Exception {
         public ConflictUpdate(){
             super("Conflict Update!");
         }
