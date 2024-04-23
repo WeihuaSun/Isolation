@@ -81,7 +81,7 @@ public class Offline extends Verifier{
 
     public void topLevel(List<TransactionLT> sortedHistory) throws Verifier.ISException.InternalRead {
         while (knownEdges.isEmpty()){
-
+            
         }
 
     }
