@@ -1,7 +1,4 @@
-package Verifier.WritePairs;
-
-import Graph.Edge.DependencyEdge;
-import Graph.Node.TransactionLT;
+package Graph;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,7 +15,7 @@ public class writePairOffline {
         this.directions = new HashMap<>();
         this.direction = DirectionType.unknown;
     }
-    public void addEdge(DependencyEdge e, TransactionLT head, TransactionLT tail, DirectionType type){
+    public void addEdge(DependencyEdge e,TransactionLT head,TransactionLT tail,DirectionType type){
         assert type!=DirectionType.unknown;
         this.directions.get(type).addEdge(e,head,tail);
     }

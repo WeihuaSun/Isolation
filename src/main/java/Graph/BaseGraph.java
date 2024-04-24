@@ -1,9 +1,10 @@
-package Graph.graph;
-import org.jgrapht.graph.*;
+package Graph;
+import org.jgrapht.graph.DefaultDirectedGraph;
 
 import java.util.function.Supplier;
 
-public class BaseGraph<V,E> extends DefaultDirectedGraph<V,E>{
+public class BaseGraph<V,E> extends DefaultDirectedGraph<V,E> {
+
     public BaseGraph(Class<? extends E> edgeClass) {
         super(edgeClass);
     }

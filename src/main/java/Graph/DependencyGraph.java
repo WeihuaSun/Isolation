@@ -1,4 +1,4 @@
-package Graph.graph;
+package Graph;
 /*
  * (C) Copyright 2008-2023, by Peter Giles and Contributors.
  *
@@ -21,8 +21,6 @@ import java.io.*;
 import java.util.*;
 import java.util.function.*;
 
-import Graph.Edge.DependencyEdge;
-import Graph.Node.TransactionLT;
 import org.jgrapht.graph.*;
 import org.jgrapht.graph.builder.*;
 import org.jgrapht.traverse.*;
@@ -63,7 +61,7 @@ import org.jgrapht.util.*;
  * @author Peter Giles
  */
 public class DependencyGraph
-        extends BaseGraph<TransactionLT, DependencyEdge>
+        extends AbstractBaseGraph<TransactionLT, DependencyEdge>
     implements Iterable<TransactionLT>
 {
     @Serial
@@ -439,9 +437,6 @@ public class DependencyGraph
         }
     }
 
-    public void setEdge(TransactionLT sourceVertex,TransactionLT targetVertex,DependencyEdge.State state){
-        this.getEdge(sourceVertex,targetVertex).setState(state);
-    }
 
     /**
      * Get the ancestors of a vertex.

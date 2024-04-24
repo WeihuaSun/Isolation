@@ -3,14 +3,9 @@ package Verifier;
 
 import java.io.*;
 import java.util.*;
+import Graph.*;
 
-import Graph.Node.*;
-import Graph.Operator.CommitLT;
-import Graph.Operator.OperatorLT;
-import Graph.Operator.ReadLT;
-import Graph.Operator.WriteLT;
-import Graph.graph.DependencyGraph;
-import Verifier.Exception.ISException;
+import org.checkerframework.checker.units.qual.A;
 import org.jgrapht.graph.*;
 
 
@@ -22,7 +17,7 @@ public class TxnLevelVerifier {
     public HashMap<Long,TreeSet<Long>> minReadTime;//对于每个Key而言，还未处理的最早的读取时间，该时间决定了写的replaceTime;如果minReadTime为空，则参考值为当前的checkStart
 
     public DirectedMultigraph<TransactionLT, DependencyEdge> over;//有向多重图
-    public DependencyGraph<TransactionLT, DependencyEdge> under;//DAG不允许出现循环
+    public DependencyGraph<TransactionLT,DependencyEdge> under;//DAG不允许出现循环
 
     public HashMap<Long, LinkedList<WriteLT>> writeMap = new HashMap<>();//存储尚未过时的Write,即后续的
 
@@ -246,7 +241,7 @@ public class TxnLevelVerifier {
     }
 
 
-    private void addEdge(DependencyGraph<TransactionLT, DependencyEdge> g, TransactionLT s, TransactionLT t, String type){
+    private void addEdge(DependencyGraph<TransactionLT, DependencyEdge> g, TransactionLT s, TransactionLT t,String type){
         try {
             g.addEdge(s,t,new DependencyEdge(type));
         }catch (GraphCycleProhibitedException e){
@@ -308,7 +303,7 @@ public class TxnLevelVerifier {
 
 
 
-    public ArrayList<TransactionLT> getReads(DependencyGraph<TransactionLT, DependencyEdge> g, TransactionLT w){
+    public ArrayList<TransactionLT> getReads(DependencyGraph<TransactionLT,DependencyEdge> g, TransactionLT w){
         ArrayList<TransactionLT> readFrom = new ArrayList<>();
         Set<DependencyEdge> outgoingEdges =  g.outgoingEdgesOf(w);
         for(DependencyEdge e:outgoingEdges){
@@ -323,7 +318,7 @@ public class TxnLevelVerifier {
 
 
 
-    private Set<DependencyEdge> tryAddEdge(DependencyGraph<TransactionLT, DependencyEdge> g, TransactionLT s, TransactionLT t, ArrayList<TransactionLT> reads){
+    private Set<DependencyEdge> tryAddEdge(DependencyGraph<TransactionLT, DependencyEdge> g, TransactionLT s, TransactionLT t,ArrayList<TransactionLT> reads){
         Set<DependencyEdge> conflictEdges;
         ;
         if((conflictEdges = g.checkEdge(s,t))!=null)

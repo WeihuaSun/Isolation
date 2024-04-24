@@ -1,6 +1,4 @@
-package Graph.Operator;
-
-import Graph.Node.TransactionLT;
+package Graph;
 
 public abstract class OperatorLT {
     public long opId;

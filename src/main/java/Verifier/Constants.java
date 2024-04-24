@@ -1,6 +1,5 @@
 package Verifier;
-import Graph.Node.TransactionLT;
-import Graph.Operator.WriteLT;
+import Graph.*;
 
 public class Constants {
     public static String dataRoot = System.getProperty("user.dir")+"/data/";

@@ -2,26 +2,19 @@ package Verifier;
 
 import java.io.*;
 import java.util.*;
-import Verifier.Exception.ISException;
-import Verifier.WritePairs.*;
-import Graph.Edge.DependencyEdge.*;
-import Graph.Node.*;
-import Graph.Operator.*;
-import Graph.graph.DependencyGraph;
-import Graph.Edge.DependencyEdge;
-import Graph.Index;
+
+import Graph.*;
+import Graph.DependencyEdge.Type;
 import org.jgrapht.graph.DirectedWeightedMultigraph;
 import org.jgrapht.util.SupplierUtil;
-import Graph.Algorithms.ItalianoStack;
 
 
 
 
 public class Offline extends Verifier{
-    public ItalianoStack<TransactionLT,DependencyEdge> reach;
     public RunVerifier.IsolationLevel isolation;
     public DependencyGraph under;
-    public DirectedWeightedMultigraph<TransactionLT, DependencyEdge> over;
+    public DirectedWeightedMultigraph<TransactionLT,DependencyEdge> over;
     public TransactionLT curTxn;
     public long checkStart;
     public long checkEnd;
@@ -33,20 +26,23 @@ public class Offline extends Verifier{
     public HashMap<Long, TreeSet<WriteLT>> writeMap;
     public final TransactionLT initTransaction;
 
-    public Set<writePairOffline> alivePairs;
+    public Set<WritePair> alivePairs;
 
-    public TreeSet<writePairOffline> toProcessPairs;
+    public TreeSet<WritePair> toProcessPairs;
     public Queue<DependencyEdge> knownEdges;
 
 
+<<<<<<< HEAD
     //public Map<DependencyEdge, Graph.writePairOffline.Direction> edge2direction;
+=======
+    public Map<DependencyEdge, Graph.WritePair.Direction> edge2direction;
+>>>>>>> c80ee5e1acd945a23454a54915a1e43de68f57dc
 
 
 
 
 
     public Offline(RunVerifier.IsolationLevel isolation, String logPath){
-
         this.isolation = isolation;
         this.initTransaction = new TransactionLT();
         this.under = new DependencyGraph(null, SupplierUtil.createSupplier(DependencyEdge.class),true,false);
@@ -60,7 +56,6 @@ public class Offline extends Verifier{
         toProcessPairs = new TreeSet<>((a,b)-> Math.toIntExact(a.checkTime - b.checkTime));
         List<List<TransactionLT>> history = new ArrayList<>();
         this.edge2direction = new HashMap<>();
-        this.reach = new ItalianoStack<>(under,DependencyEdge.class);
         loadHistory(history,logPath);
         List<TransactionLT> sortedHistory = mergeSort(history);
         try {
@@ -88,11 +83,9 @@ public class Offline extends Verifier{
     }
 
 
-    public void topLevel(List<TransactionLT> sortedHistory){
+    public void topLevel(List<TransactionLT> sortedHistory) throws Verifier.ISException.InternalRead {
         while (knownEdges.isEmpty()){
-            DependencyEdge e = knownEdges.remove();
-            List<Index> change = this.reach.insertEdge(e);
-            
+
         }
 
     }
@@ -219,7 +212,7 @@ public class Offline extends Verifier{
         }
         g.addEdge(s,t,e);
     }
-    public void addEdge(DirectedWeightedMultigraph<TransactionLT, DependencyEdge> g, TransactionLT s, TransactionLT t, Type type, boolean ...d){
+    public void addEdge(DirectedWeightedMultigraph<TransactionLT,DependencyEdge> g,TransactionLT s,TransactionLT t,Type type,boolean ...d){
         DependencyEdge e = new DependencyEdge(type);
         if(d.length>0){
             e.setDeterminate(d[0]);
@@ -269,7 +262,7 @@ public class Offline extends Verifier{
                 TreeSet<Long> readTime = minReadTime.getOrDefault(w.key, new TreeSet<>());
                 if (readTime.isEmpty() || w.replaceTime <= readTime.first()) {
                     iterator.remove(); // 移除该WriteLT对象
-                    w.setState();//调用自己的remove函数，去通知其所处的writePairOffline
+                    w.setState();//调用自己的remove函数，去通知其所处的writePair
                     Set<TransactionLT> reads = getReads(under, w.parent);
                     for (TransactionLT r : reads) {
                         for(TransactionLT nw: w.neighbors){
@@ -336,7 +329,7 @@ public class Offline extends Verifier{
      * a.prev.end<=cur.start:
      * 1.添加WW依赖关系，当且仅当该写在在另一个写结束后开始。该WW依赖关系是由TO推导出来的，所以需要将对应的TO的标签替换为WW
      * 2.更新ReplaceTime,如果cur.end比prev原有的ReplaceTime更早，那么将使用cur.end更新ReplaceTime
-     * b.prev.end>cur.start，此时cur和prev时间戳相交，先后关系不确定，需要建立writePairOffline，writePairOffline过时后处理
+     * b.prev.end>cur.start，此时cur和prev时间戳相交，先后关系不确定，需要建立writePair，writePair过时后处理
      * 如果之前没有key相应的写操作，将cur作为该key的第二个写操作，第一个写操作为初始事务的写，initWrite
      *
      * @param localWrites 维护当前事务install的写操作，map:writeKey->WriteLT
@@ -356,7 +349,7 @@ public class Offline extends Verifier{
             } else {
                 for (WriteLT other : otherWrites) {
                     if (other.parent.end > checkStart) {
-                        writePairOffline wwPair = new writePairOffline(local, other,alivePairs,toProcessPairs);//每个WWPair有两个极性，必须选择一个
+                        WritePair wwPair = new WritePair(local, other,alivePairs,toProcessPairs);//每个WWPair有两个极性，必须选择一个
                         alivePairs.add(wwPair);
                         local.wwPairs.add(wwPair);
                         other.wwPairs.add(wwPair);

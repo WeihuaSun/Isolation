@@ -1,4 +1,4 @@
-package Graph.Algorithms;
+package Graph;
 
 import java.util.*;
 
@@ -45,7 +45,7 @@ public class DAGTransitiveClosure {
         this.index = new int[n][n];
         this.stack = new Stack<>();
         for (int i = 0; i < n; i++) {
-
+            Arrays.fill(index[i],-1);
         }
     }
     public void pop(int n){
@@ -54,6 +54,7 @@ public class DAGTransitiveClosure {
             for(Pair pair:record.indexChanges){
                 index[pair.x][pair.y] = -1;
             }
+
         }
     }
 

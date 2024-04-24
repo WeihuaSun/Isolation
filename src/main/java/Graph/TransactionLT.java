@@ -1,10 +1,10 @@
-package Graph.Node;
+package Graph;
 
-import Graph.Operator.OperatorLT;
+import Verifier.Graph;
 
 import java.util.ArrayList;
 
-public class TransactionLT extends Vertex {
+public class TransactionLT {
     public final static long INIT_TXN = -2;
     public long clientId;
     public long txnId;
@@ -12,12 +12,12 @@ public class TransactionLT extends Vertex {
     public long start;
     public long end;
     public ArrayList<OperatorLT> Ops;
-    public long replaceTime;
+    public  long replaceTime;
 
     public TransactionLT(){
 
     }
-    public static TransactionLT initTransaction(){
+    public TransactionLT initTransaction(){
         TransactionLT init = new TransactionLT();
         init.setStart(0);
         init.setEnd(0);
@@ -28,8 +28,6 @@ public class TransactionLT extends Vertex {
         Ops = new ArrayList<>();
         this.txnId = txnId;
         this.clientId = clientId;
-        this.setStart(0);
-        this.setEnd(0);
     }
 
     public void setStart(long start) {

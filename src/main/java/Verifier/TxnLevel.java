@@ -3,12 +3,8 @@ package Verifier;
 import java.io.*;
 import java.util.*;
 
-import Graph.Edge.DependencyEdge.Type;
-import Graph.Node.*;
-import Graph.Operator.*;
-import Graph.graph.DependencyGraph;
-import Verifier.Exception.ISException;
-import Verifier.WritePairs.WritePairLT;
+import Graph.*;
+import Graph.DependencyEdge.Type;
 import org.jgrapht.graph.DirectedWeightedMultigraph;
 import org.jgrapht.util.SupplierUtil;
 
@@ -18,7 +14,7 @@ import org.jgrapht.util.SupplierUtil;
 public class TxnLevel extends Verifier{
     public RunVerifier.IsolationLevel isolation;
     public DependencyGraph under;
-    public DirectedWeightedMultigraph<TransactionLT, DependencyEdge> over;
+    public DirectedWeightedMultigraph<TransactionLT,DependencyEdge> over;
     public TransactionLT curTxn;
     public long checkStart;
     public long checkEnd;
@@ -32,16 +28,6 @@ public class TxnLevel extends Verifier{
     public Set<WritePair> alivePairs;
 
     public TreeSet<WritePair> toProcessPairs;
-
-    public Set<WritePairLT> alivePairs;
-
-    public TreeSet<WritePairLT> toProcessPairs;
-    public DependencyGraph g;
-
-    public Set<WritePairLT> alivePairs;
-
-    public TreeSet<WritePairLT> toProcessPairs;
-    public DependencyGraph g;
 
 
 
@@ -164,15 +150,7 @@ public class TxnLevel extends Verifier{
         }
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
     public void detectAnomaly(List<TransactionLT> sortedHistory) throws ISException.InternalRead, Verifier.ISException.ReadFromUnknown, Verifier.ISException.CycleException {
-=======
-    public void detectAnomaly(List<TransactionLT> sortedHistory) throws ISException.InternalRead, ISException.ReadFromUnknown {
->>>>>>> 676b501 (s)
-=======
-    public void detectAnomaly(List<TransactionLT> sortedHistory) throws ISException.InternalRead, ISException.ReadFromUnknown {
->>>>>>> main
         for(TransactionLT txn:sortedHistory){
             under.addVertex(txn);
             over.addVertex(txn);
@@ -209,7 +187,7 @@ public class TxnLevel extends Verifier{
         }
         g.addEdge(s,t,e);
     }
-    public void addEdge(DirectedWeightedMultigraph<TransactionLT, DependencyEdge > g,TransactionLT s,TransactionLT t,Type type,boolean ...d){
+    public void addEdge(DirectedWeightedMultigraph<TransactionLT,DependencyEdge> g,TransactionLT s,TransactionLT t,Type type,boolean ...d){
         DependencyEdge e = new DependencyEdge(type);
         if(d.length>0){
             e.setDeterminate(d[0]);
@@ -335,24 +313,10 @@ public class TxnLevel extends Verifier{
             if(otherWrites.isEmpty()){
                 WriteLT initOperation = getInitOperation(checkEnd);
                 otherWrites.add(local);
-<<<<<<< HEAD
                 otherWrites.add(initOperation);
                 initOperation.neighbors.add(local.parent);
                 addEdge(under,initOperation.parent,local.parent,Type.WW,true);
                 addEdge(over,initOperation.parent,local.parent,Type.WW,true);
-=======
-                otherWrites.add(Constants.initWrite);
-            }
-            if (otherWrites == null) {
-                LinkedList<WriteLT> newWrite = new LinkedList<>();
-                newWrite.add(local);
-                newWrite.add(Constants.initWrite);
-                under.addEdge(Constants.initTxn, local.parent, new DependencyEdge(DependencyEdge.Type.WW));
-                //writeMap.put(key, newWrite);
-<<<<<<< HEAD
->>>>>>> 676b501 (s)
-=======
->>>>>>> main
             } else {
                 for (WriteLT other : otherWrites) {
                     if (other.parent.end > checkStart) {
@@ -363,17 +327,9 @@ public class TxnLevel extends Verifier{
                     } else {//other.parent.iEnd<=checkStart
                         //更新replaceTime
                         other.replaceTime = Math.min(checkEnd, other.replaceTime);
-<<<<<<< HEAD
-<<<<<<< HEAD
                         other.neighbors.add(local.parent);
                         addEdge(under, other.parent, local.parent, Type.WW,true);//WW
                         addEdge(over,other.parent,local.parent,Type.WW,true);
-=======
-                        //addEdge(under, other.parent, local.parent, "WW");//WW
->>>>>>> 676b501 (s)
-=======
-                        //addEdge(under, other.parent, local.parent, "WW");//WW
->>>>>>> main
                     }
                 }
             }

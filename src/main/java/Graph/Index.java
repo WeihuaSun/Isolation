@@ -1,3 +1,5 @@
 package Graph;
 
-public record Index(int x,int y ) {}
+public record Index(int x,int y) {
+
+}
