@@ -39,7 +39,7 @@ public class Offline extends Verifier{
     public Queue<DependencyEdge> knownEdges;
 
 
-    public Map<DependencyEdge, Graph.writePairOffline.Direction> edge2direction;
+    //public Map<DependencyEdge, Graph.writePairOffline.Direction> edge2direction;
 
 
 
@@ -73,7 +73,7 @@ public class Offline extends Verifier{
 
 
 
-    public void preScan(List<TransactionLT> sortedTxns) throws Verifier.ISException.InternalRead, Verifier.ISException.ReadFromUnknown {
+    public void preScan(List<TransactionLT> sortedTxns) throws {
         for(TransactionLT txn:sortedTxns){
             this.curTxn = txn;
             this.checkStart = txn.start;
