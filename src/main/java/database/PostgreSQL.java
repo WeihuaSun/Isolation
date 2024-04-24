@@ -1,6 +1,6 @@
 package database;
 
-import Verifier.Graph;
+import Verifier.checker.Graph;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import benchmark.Utils;

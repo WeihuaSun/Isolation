@@ -1,6 +1,6 @@
 package database;
 
-import Verifier.Graph;
+import Verifier.checker.Graph;
 
 public interface KeyValueDB {
     boolean connect(int num);

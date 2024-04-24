@@ -1,7 +1,7 @@
 package benchmark.twitter;
 
 
-import Verifier.Graph;
+import Verifier.checker.Graph;
 import benchmark.SUT;
 import benchmark.Utils;
 

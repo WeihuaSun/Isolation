@@ -1,7 +1,6 @@
-import Verifier.OpLevelVerifier;
+import Verifier.checker.OpLevelVerifier;
 import benchmark.History;
 
-import benchmark.twitter.TwitterRun;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

@@ -1,9 +1,6 @@
-import Graph.DependencyEdge;
-import Graph.DependencyGraph;
-import Graph.TransactionLT;
-import org.checkerframework.checker.units.qual.A;
-import org.jgrapht.graph.DirectedWeightedPseudograph;
-import org.jgrapht.graph.WeightedMultigraph;
+import graph.edge.DependencyEdge;
+import DependencyGraph;
+import graph.vertex.TransactionLT;
 import org.jgrapht.util.SupplierUtil;
 
 import java.util.ArrayList;

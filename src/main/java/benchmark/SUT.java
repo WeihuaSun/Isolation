@@ -1,10 +1,5 @@
 package benchmark;
-import Verifier.Graph;
-import benchmark.tpcc.TPCCHistory;
 import org.apache.logging.log4j.Logger;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 
 public abstract class SUT<T extends TData<T>> {
 

@@ -1,8 +1,9 @@
 package Verifier;
 
-import java.util.ArrayList;
+import Verifier.checker.TxnLevel;
+import Verifier.checker.Verifier;
+
 import java.util.Properties;
-import Graph.*;
 
 public class RunVerifier {
     public enum RecordLevel{Operator,Transaction,Group}

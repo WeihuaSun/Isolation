@@ -1,6 +1,6 @@
 package benchmark;
 
-import Verifier.Graph;
+import Verifier.checker.Graph;
 
 public class TData<T> {
     public final static int TT_NONE = 6, TT_DONE = 7;

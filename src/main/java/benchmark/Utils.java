@@ -8,12 +8,11 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 
-import Verifier.Graph;
+import Verifier.checker.Graph;
 import net.openhft.hashing.LongHashFunction;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import java.nio.file.StandardOpenOption;
-import java.nio.file.Files;
+
 public class Utils {
     public static Gson gson = new Gson();
 
